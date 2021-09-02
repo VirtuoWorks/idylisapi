@@ -1,5 +1,11 @@
+[![Coverage Status](https://coveralls.io/repos/github/VirtuoWorks/Node/idylisapi/badge.svg?branch=main)](https://coveralls.io/github/VirtuoWorks/Node/idylisapi?branch=main)
+[![Typescript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[https://img.shields.io/badge/Maintained%3F-yes-green.svg]
+[https://img.shields.io/github/license/virtuoworks/virtuoworks/idylisapi.svg]
+[https://badgen.net/badge/codecov/c/bitbucket/ignitionrobotics/ign-math/main]
+
 # Introduction
-An easy to use API to communicate with [Idylis](https://www.idylis.com/index)'s API.
+An easy to use API to communicate with [Idylis](https://www.idylis.com/index)' API.
 It can be used to find, update or insert a document on Idylis in a very straightforward and developer friendly way.
 This API was developed in order to facilitate the communication between any given API and Idylis. 
 One only needs to be in possession of their credentials to connect to Idylis to use this API.
@@ -7,10 +13,18 @@ _**Please note that basic knowledge of the way Idylis functions is necessary to 
 
 ## What can we do with idylisapi?
 
-- Get an authorization token from Idylis
-- Find a document on Idylis
-- Insert a document on Idylis
-- Update a document on Idylis
+- **Get** an authorization token from Idylis
+- **Find** a document on Idylis
+- **Insert** a document on Idylis
+- **Update** a document on Idylis
+
+## Installing idylisapi
+
+To add idylisapi to your project, just type the following command at the root of your project:
+
+```bash
+npm install @virtuoworks/idylisapi
+```
 
 ## Creating the object idylisapi
 
@@ -53,7 +67,7 @@ The idylisapi object has a method called ```findDocument()``` which allows to fi
 | **docType** | The type of document that will be retrieved from Idylis API (example: 'FA_DEVIS', 'FA_BL', etc). |
 | **searchCriteria** | The criteria that will be used to retrieve one or more document(s) from Idylis API (example: 'DATECREATION', 'CODEDEVIS', etc). |
 | **operator** | The assignment operator used for the search **(possible choices: '=', '>=', '<=', '<', '>')**. |
-| **criteriaValue** | The value that will be used along with the search criteria (example: 'PI2105033', '03/12/2020', etc. _**Please note that date format must be dd/MM/yyyy**_). |
+| **criteriaValue** | The value that will be used along with the search criteria (example: 'PI2105033', '03/12/2020', etc. _**Please note that the date format must be dd/MM/yyyy**_). |
 | **orderingType** | The criteria with which the documents will be ordered in the response (example: 'DATECREATION', 'CODEDEVIS', etc). |
 | **orderingValue** | The value that will be used along with the ordering type **(possible choices: 'ASC', 'DESC')**. |
 | **subTable** | Allows to choose whether sub tables will be present in the response or not **(possible choices: 0, 1)**. |
