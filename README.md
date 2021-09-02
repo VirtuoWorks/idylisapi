@@ -1,8 +1,4 @@
 [![Coverage Status](https://coveralls.io/repos/github/VirtuoWorks/Node/idylisapi/badge.svg?branch=main)](https://coveralls.io/github/VirtuoWorks/Node/idylisapi?branch=main)
-[![Typescript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[https://img.shields.io/badge/Maintained%3F-yes-green.svg]
-[https://img.shields.io/github/license/virtuoworks/virtuoworks/idylisapi.svg]
-[https://badgen.net/badge/codecov/c/bitbucket/ignitionrobotics/ign-math/main]
 
 # Introduction
 An easy to use API to communicate with [Idylis](https://www.idylis.com/index)' API.
