@@ -9,7 +9,7 @@
   "engines": {
     "node": ">=10"
   },
-  "description": "A simple interface to communicate with Idylis",
+  "description": "A simple interface to communicate with Idylis' API",
   "keywords": [
     "idylis",
     "api",

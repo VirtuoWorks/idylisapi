@@ -1,0 +1,49 @@
+version: 2.1
+jobs:
+  Checking-Code:
+    steps:
+      - checkout
+      - run:
+          name: Checking code
+          command: |
+            echo 'Checking code integrity'
+            ls -la
+  Checking-Node-Version:
+    docker:
+      # https://circleci.com/docs/2.0/circleci-images/#nodejs
+      - image: circleci/node:14.17.5
+    steps:
+      - run:
+        name: Checking node version
+        command: |
+          echo 'Now checking node version...'
+          node -v
+  Building-App:
+    steps:
+      - run:
+          name: Building
+          command: |
+            echo 'Now building...'
+            npm run build
+  Running-UT:
+    steps:
+      - run:
+          name: Running tests
+          command: |
+            echo 'Now running unit tests...'
+            npm run test
+
+workflows:
+  version: 2.1
+  Idylisapi_Workflow:
+    jobs:
+      - Checking-Code
+      - Checking-Node-Version:
+          requires:
+            - Checking-Code
+      - Building-App:
+        requires:
+          - Checking-Node-Version
+      - Running-UT:
+          requires:
+            - Building-App
