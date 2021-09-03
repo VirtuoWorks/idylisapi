@@ -2,6 +2,7 @@
 [![Github all releases](https://img.shields.io/github/downloads/VirtuoWorks/idylisapi/total.svg)](https://github.com/VirtuoWorks/idylisapi/releases/)
 [![GitHub license](https://img.shields.io/github/license/VirtuoWorks/idylisapi.svg)](https://github.com/VirtuoWorks/idylisapi/main/LICENSE)
 [![made-with-Markdown](https://img.shields.io/badge/Made%20with-Markdown-1f425f.svg)](http://commonmark.org)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/fdc9b9088db54e40b504eac2bdb9e469)](https://www.codacy.com/gh/VirtuoWorks/idylisapi/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=VirtuoWorks/idylisapi&amp;utm_campaign=Badge_Grade)
 [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/VirtuoWorks/idylisapi/graphs/commit-activity)
 
 # Introduction
