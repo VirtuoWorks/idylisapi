@@ -1,7 +1,7 @@
 [![Coverage Status](https://coveralls.io/repos/github/VirtuoWorks/Node/idylisapi/badge.svg?branch=main)](https://coveralls.io/github/VirtuoWorks/Node/idylisapi?branch=main)
-[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://GitHub.com/Naereen/StrapDown.js/graphs/commit-activity)
-[![GitHub license](https://img.shields.io/github/license/Naereen/StrapDown.js.svg)](https://github.com/Naereen/StrapDown.js/blob/master/LICENSE)
-[![Github all releases](https://img.shields.io/github/downloads/Naereen/StrapDown.js/total.svg)](https://GitHub.com/Naereen/StrapDown.js/releases/)
+[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://GitHub.com/VirtuoWorks/idylisapi/graphs/commit-activity)
+[![GitHub license](https://img.shields.io/github/license/VirtuoWorks/idylisapi.svg)](https://github.com/VirtuoWorks/idylisapi/main/LICENSE)
+[![Github all releases](https://img.shields.io/github/downloads/VirtuoWorks/idylisapi/total.svg)](https://GitHub.com/VirtuoWorks/idylisapi/releases/)
 
 # Introduction
 An easy to use API to communicate with [Idylis](https://www.idylis.com/index)' API.
