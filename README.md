@@ -1,4 +1,4 @@
-[![Coverage Status](https://coveralls.io/repos/github/VirtuoWorks/Node/idylisapi/badge.svg?branch=main)](https://coveralls.io/github/VirtuoWorks/Node/idylisapi?branch=main)
+[![Coverage Status](https://coveralls.io/repos/github/VirtuoWorks/idylisapi/badge.svg?branch=main)](https://coveralls.io/github/VirtuoWorks/idylisapi?branch=main)
 [![Github all releases](https://img.shields.io/github/downloads/VirtuoWorks/idylisapi/total.svg)](https://github.com/VirtuoWorks/idylisapi/releases/)
 [![GitHub license](https://img.shields.io/github/license/VirtuoWorks/idylisapi.svg)](https://github.com/VirtuoWorks/idylisapi/main/LICENSE)
 [![made-with-Markdown](https://img.shields.io/badge/Made%20with-Markdown-1f425f.svg)](http://commonmark.org)
