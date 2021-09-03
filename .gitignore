@@ -5,6 +5,9 @@ dist/
 # Jest coverage folder
 /coverage
 
+# Circleci config folder
+/.circleci
+
 # Compiled Java class files
 *.class
 
