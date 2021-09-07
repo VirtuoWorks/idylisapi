@@ -51,13 +51,14 @@ const idylisapi = idylisapi(
 
 ## Getting an authorization token from Idylis
 
-In order to obtain an authorization token, required to make API calls to Idylis API, we are going to use the method ```getAuthToken()```. This method does not require any argument, and will return a valid token that can be used to make API calls to Idylis. [^1]
+In order to obtain an authorization token, required to make API calls to Idylis API, we are going to use the method ```getAuthToken()```. This method does not require any argument, and will return a valid token that can be used to make API calls to Idylis. 
+
+_Please note that you do not need to use this method before using other methods, such as ```insertDocument()``` or ```findDocument()```, for these methods already call ```getAuthToken()```._
 
 ```javascript
 const authorizationToken = await idylisapi.getAuthToken();
 ```
 
-[^1]: *please note that you do not need to use this method before using other methods, such as ```insertDocument()``` or ```findDocument()```, for these methods already call ```getAuthToken()```.*
 
 ## Finding a document on Idylis
 
