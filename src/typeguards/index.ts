@@ -18,7 +18,7 @@ export class Typeguards {
    * is the one expected
    */
   isString(
-      str: string | any
+      str: string | any,
   ): str is string {
     return 'string' === typeof str || str instanceof String;
   };
