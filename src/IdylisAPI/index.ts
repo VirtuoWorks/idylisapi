@@ -2,9 +2,9 @@
 /* eslint-disable new-cap */
 /* eslint-disable max-len */
 
-import * as soap from 'soap';
-import {URL} from 'url';
-import Parser from 'fast-xml-parser';
+import * as soap from "soap";
+import {URL} from "url";
+import Parser from "fast-xml-parser";
 import {
   AuthentificationAvec3Parametres1,
   Auth3,
@@ -16,22 +16,22 @@ import {
   OriginJsonDocument,
   JsonDocumentFicheToUpdate,
   CDATA,
-} from './interfaces';
-import {typeguards} from '../typeguards';
+} from "./interfaces";
+import {typeguards} from "../typeguards";
 
 
 const options: ParseOptions = {
-  attributeNamePrefix: '@_',
-  attrNodeName: 'attr',
-  textNodeName: '#text',
+  attributeNamePrefix: "@_",
+  attrNodeName: "attr",
+  textNodeName: "#text",
   ignoreAttributes: true,
   ignoreNameSpace: false,
   allowBooleanAttributes: false,
   parseNodeValue: true,
   parseAttributeValue: false,
   trimValues: true,
-  cdataTagName: '__cdata',
-  cdataPositionChar: '\\c',
+  cdataTagName: "__cdata",
+  cdataPositionChar: "\\c",
   parseTrueNumberOnly: false,
   arrayMode: false,
   /* istanbul ignore next */ attrValueProcessor: /* istanbul ignore next */ (a: any) => a,
@@ -49,7 +49,7 @@ const j2xParser = new Parser.j2xParser(options);
  * to make calls to the Idylis API
  */
 export default class IdylisAPI {
-  private token: string = '';
+  private token: string = "";
   private client!: soap.Client;
   private tokenIsValid: boolean = false;
   private clientIsValid: boolean = false;
@@ -80,7 +80,7 @@ export default class IdylisAPI {
     } catch (error) {
       /* istanbul ignore next */
       return false;
-    }
+    };
   };
 
   /**
@@ -96,11 +96,11 @@ export default class IdylisAPI {
         this.clientIsValid = true;
       } catch (error) {
         /* istanbul ignore next */
-        throw new Error(error);
+        throw new Error(String(error));
       }
     } else {
-      throw new Error('The WSDL SOAP url is invalid.');
-    }
+      throw new Error("The WSDL SOAP url is invalid.");
+    };
     return client;
   };
 
@@ -145,12 +145,12 @@ export default class IdylisAPI {
    * @return {boolean} returns a boolean that tells whether a token is empty or not
    */
   private apiTokenIsNotEmpty(): boolean {
-    if ('' !== this.token) {
+    if ("" !== this.token) {
       this.tokenIsValid = true;
     } else {
       /* istanbul ignore next */
       this.tokenIsValid = false;
-    }
+    };
     return this.tokenIsValid;
   };
 
@@ -160,14 +160,14 @@ export default class IdylisAPI {
    */
   private invalidateApiToken(): IdylisAPI {
     this.tokenIsValid = false;
-    this.token = '';
+    this.token = "";
     return this;
   };
 
   /**
    * @return {Promise<soap.Client>} this method checks whether
    * an instance of the soap client exists.
-   * and if it doesn't, it creates one. At the end, it returns
+   * and if it doesn"t, it creates one. At the end, it returns
    * a brand new client or the existing one.
    */
   public async getSoapClient(): Promise<soap.Client> {
@@ -179,9 +179,9 @@ export default class IdylisAPI {
         client = await this.createSoapClient();
       } catch (error) {
         /* istanbul ignore next */
-        throw new Error(error);
+        throw new Error(String(error));
       }
-    }
+    };
     return client;
   };
 
@@ -193,8 +193,8 @@ export default class IdylisAPI {
       this.client = await this.getSoapClient();
     } catch (error) {
       /* istanbul ignore next */
-      throw new Error(error);
-    }
+      throw new Error(String(error));
+    };
     return this;
   };
 
@@ -205,22 +205,22 @@ export default class IdylisAPI {
    */
   private async tokenRequest(): Promise<string> {
     const argsAuth: Auth3 = {
-      '_codeAbonne': String(this.code || ''),
-      '_identifiant': String(this.id || ''),
-      '_motdePasse': String(this.pwd || ''),
+      "_codeAbonne": String(this.code || ""),
+      "_identifiant": String(this.id || ""),
+      "_motdePasse": String(this.pwd || ""),
     };
     let client: soap.Client;
-    let token: string = '';
+    let token: string = "";
     try {
       client = (await this.setSoapClient()).client;
     } catch (error) {
       /* istanbul ignore next */
-      throw new Error(error);
-    }
+      throw new Error(String(error));
+    };
     try {
       const [AuthentificationAvec3Parametres1]: [AuthentificationAvec3Parametres1] = await client.authentification1Async(argsAuth, {timeout: 30000});
       const authResult: string = AuthentificationAvec3Parametres1.AuthentificationAvec3Parametres1Result;
-      if (authResult === '-1') {
+      if (authResult === "-1") {
         this.invalidateApiToken();
         throw new Error(`The authentication failed. Please check your credentials and try again.`);
       } else {
@@ -229,8 +229,8 @@ export default class IdylisAPI {
       }
     } catch (error) {
       /* istanbul ignore next */
-      throw new Error(error);
-    }
+      throw new Error(String(error));
+    };
     return token;
   };
 
@@ -239,7 +239,7 @@ export default class IdylisAPI {
    * and if it is not, it returns a new valid token
    */
   public async getAuthToken(): Promise<string> {
-    let token: string = '';
+    let token: string = "";
     if (this.tokenExists() && this.apiTokenIsValid() && this.apiTokenIsNotEmpty()) {
       return this.token;
     } else {
@@ -247,9 +247,9 @@ export default class IdylisAPI {
         token = await this.tokenRequest();
       } catch (error) {
         /* istanbul ignore next */
-        throw new Error(error);
+        throw new Error(String(error));
       }
-    }
+    };
     return token;
   };
 
@@ -261,8 +261,8 @@ export default class IdylisAPI {
       this.token = await this.getAuthToken();
     } catch (error) {
       /* istanbul ignore next */
-      throw new Error(error);
-    }
+      throw new Error(String(error));
+    };
     return this;
   };
 
@@ -280,7 +280,7 @@ export default class IdylisAPI {
           .getAuthToken());
     } catch (error) {
       /* istanbul ignore next */
-      throw new Error(error);
+      throw new Error(String(error));
     }
     if (!this.tokenIsValid) {
       /* istanbul ignore next */
@@ -291,25 +291,25 @@ export default class IdylisAPI {
       this.client.addSoapHeader(`<SessionIDHeader xmlns="${this.xmlnsAddress}"><SessionID>${token}</SessionID></SessionIDHeader>`);
     } catch (error) {
       /* istanbul ignore next */
-      throw new Error(error);
-    }
+      throw new Error(String(error));
+    };
   };
 
   /**
    * @param {string} docType this is the type of document that will be
-   * retrieved from Idylis API (e.g..: 'FA_DEVIS', 'FA_BL', etc).
+   * retrieved from Idylis API (e.g..: "FA_DEVIS", "FA_BL", etc).
    * @param {string} searchCriteria this is the criteria that will be
    * used to retrieve one or more document(s) from Idylis API
-   * (e.g.: 'DATECREATION', 'CODEDEVIS', etc).
+   * (e.g.: "DATECREATION", "CODEDEVIS", etc).
    * @param {string} operator this represents the assignment operator used
-   * for the search (e.g.: '=', '>=', etc)
+   * for the search (e.g.: "=", ">=", etc)
    * @param {string} criteriaValue this is the value that will be used along
-   * with the search criteria (e.g.: 'PI2105033', '03/12/2020', etc.
+   * with the search criteria (e.g.: "PI2105033", "03/12/2020", etc.
    * Please note that date format must be dd/MM/yyyy).
    * @param {string} orderingType this is the criteria with which the documents
-   * will be ordered in the response (e.g.: 'DATECREATION', 'CODEDEVIS', etc).
+   * will be ordered in the response (e.g.: "DATECREATION", "CODEDEVIS", etc).
    * @param {string} orderingValue this is the value that will be used along
-   * with the ordering type (possible choices: 'ASC', 'DESC').
+   * with the ordering type (possible choices: "ASC", "DESC").
    * @param {number} subTable this number allows to choose whether subtables
    * will be present in the response or not (possible choices: 0, 1).
    * @param {number} enclosedDoc this number allows to choose whether enclosed
@@ -328,38 +328,38 @@ export default class IdylisAPI {
       enclosedDoc: number,
       withCompression: number,
   ): Promise<string | boolean> => {
-    let table: string = '';
+    let table: string = "";
 
     try {
       await this.addSoapClientHeader();
     } catch (error) {
       /* istanbul ignore next */
-      throw new Error(error);
-    }
+      throw new Error(String(error));
+    };
     try {
       const [LireTableResult]: [LireTableResult] = await this.client.LireTableAsync(
           {
-            '_nomtable': `${docType}`,
-            '_criteres': `${searchCriteria}${operator}'${criteriaValue}'`,
-            '_ordre': `${orderingType} ${orderingValue}`,
-            '_soustables': subTable,
-            '_pieceatache': enclosedDoc,
-            '_aveccompression': withCompression,
+            "_nomtable": `${docType}`,
+            "_criteres": `${searchCriteria}${operator}"${criteriaValue}"`,
+            "_ordre": `${orderingType} ${orderingValue}`,
+            "_soustables": subTable,
+            "_pieceatache": enclosedDoc,
+            "_aveccompression": withCompression,
           },
           {timeout: 30000},
       );
 
-      if (LireTableResult.LireTableResult.includes('<error><code>21</code></error>') ||
-        LireTableResult.LireTableResult.includes('<error><code>24</code></error>') ||
-        LireTableResult.LireTableResult.includes('<FICHE />')) {
-        /* istanbul ignore next */ if (LireTableResult.LireTableResult.includes('<error><code>21</code></error>') ||
-          LireTableResult.LireTableResult.includes('<error><code>24</code></error>')) {
+      if (LireTableResult.LireTableResult.includes("<error><code>21</code></error>") ||
+        LireTableResult.LireTableResult.includes("<error><code>24</code></error>") ||
+        LireTableResult.LireTableResult.includes("<FICHE />")) {
+        /* istanbul ignore next */ if (LireTableResult.LireTableResult.includes("<error><code>21</code></error>") ||
+          LireTableResult.LireTableResult.includes("<error><code>24</code></error>")) {
           this
               .invalidateSoapClient()
               .invalidateApiToken();
           return await this.findDocument(docType, searchCriteria, operator, criteriaValue, orderingType, orderingValue, subTable, enclosedDoc, withCompression);
         }
-        if (LireTableResult.LireTableResult.includes('<FICHE />')) {
+        if (LireTableResult.LireTableResult.includes("<FICHE />")) {
           this.invalidateSoapClient();
           /* istanbul ignore next */
           return false;
@@ -367,25 +367,27 @@ export default class IdylisAPI {
       }
       table = LireTableResult.LireTableResult;
     } catch (error) {
-    }
+      /* istanbul ignore next */
+      throw new Error(String(error));
+    };
     return table;
   };
 
   /**
    * @param {string} docType this is the type of document that will be retrieved
-   * from Idylis API (e.g..: 'FA_DEVIS', 'FA_BL', etc).
+   * from Idylis API (e.g..: "FA_DEVIS", "FA_BL", etc).
    * @param {string} searchCriteria this is the criteria that will be used to
    * retrieve one or more document(s) from Idylis API
-   * (e.g.: 'DATECREATION', 'CODEDEVIS', etc).
+   * (e.g.: "DATECREATION", "CODEDEVIS", etc).
    * @param {string} operator this represents the assignment operator used for the
-   * search (e.g.: '=', '>=', etc)
+   * search (e.g.: "=", ">=", etc)
    * @param {string} criteriaValue this is the value that will be used along with
-   * the search criteria (e.g.: 'PI2105033', '03/12/2020', etc.
+   * the search criteria (e.g.: "PI2105033", "03/12/2020", etc.
    * Please note that date format must be dd/MM/yyyy).
    * @param {string} orderingType this is the criteria with which the documents will
-   * be ordered in the response (e.g.: 'DATECREATION', 'CODEDEVIS', etc).
+   * be ordered in the response (e.g.: "DATECREATION", "CODEDEVIS", etc).
    * @param {string} orderingValue this is the value that will be used along with the
-   * ordering type (possible choices: 'ASC', 'DESC').
+   * ordering type (possible choices: "ASC", "DESC").
    * @param {number} subTable this number allows to choose whether subtables will be
    * present in the response or not (possible choices: 0, 1).
    * @param {number} enclosedDoc this number allows to choose whether enclosed
@@ -393,7 +395,7 @@ export default class IdylisAPI {
    * @param {number} withCompression this number allows to choose whether the
    * response will be compressed or not (possible choices: 0, 1).
    * @param {string} primaryKey this represents the primary key necessary to update
-   * any table (e.g.: 'REFBL' for delivery notes).
+   * any table (e.g.: "REFBL" for delivery notes).
    * @param {IdylisTableField[]} tableUpdateArray this represents an array containing
    * objects of pair key value representing the table to be updated as the key and
    * the value to update as the value
@@ -416,10 +418,10 @@ export default class IdylisAPI {
       primaryKey: string,
       tableUpdateArray: IdylisTableField[],
   ): Promise<boolean | OriginJsonDocument> {
-    let originXmlDocument: string | boolean = '';
-    let majTableXml: string = '';
+    let originXmlDocument: string | boolean = "";
+    let majTableXml: string = "";
     let majTableJson: MajTableJson = {};
-    let updatedXmlDocument: string | boolean = '';
+    let updatedXmlDocument: string | boolean = "";
     let jsonDocumentUpdatedFiche: JsonDocumentFicheToUpdate;
     let updateConfirmation: boolean = false;
 
@@ -437,15 +439,15 @@ export default class IdylisAPI {
       );
     } catch (error) {
       /* istanbul ignore next */
-      throw new Error(error);
-    }
+      throw new Error(String(error));
+    };
 
     if (!typeguards.isString(originXmlDocument)) {
       /* istanbul ignore next */
       return false;
     }
 
-    if (Parser.validate(originXmlDocument) && '' !== originXmlDocument) {
+    if (Parser.validate(originXmlDocument) && "" !== originXmlDocument) {
       const originJsonDocument: OriginJsonDocument = Parser.parse(originXmlDocument, options);
       const jsonDocumentFicheToUpdate: JsonDocumentFicheToUpdate = originJsonDocument[docType]?.FICHE;
 
@@ -466,32 +468,34 @@ export default class IdylisAPI {
             const originValue: string[] = Object.values(keyToCheck);
             const updatedValue: string[] = Object.values(table);
 
-            if (typeguards.isCdata(keyToCheck) && keyToCheck?.__cdata !== '') {
+            if (typeguards.isCdata(keyToCheck) && keyToCheck?.__cdata !== "") {
               if (String(originValue) !== String(updatedValue)) {
                 majTableJson[docType].FICHE[String(keyToUpdate)] = `<![CDATA[${Object.values({__cdata: String(updatedValue)})}]]]]><![CDATA[>`;
                 jsonDocumentFicheToUpdate[String(keyToUpdate)] = {__cdata: String(updatedValue)};
               } else {
+                throw new Error(``);
               }
             } else {
+              throw new Error(``);
             }
           });
 
           majTableXml = j2xParser.parse(majTableJson);
 
-          if (Parser.validate(majTableXml) && '' !== originXmlDocument) {
+          if (Parser.validate(majTableXml) && "" !== originXmlDocument) {
             try {
               await this.addSoapClientHeader();
             } catch (error) {
               /* istanbul ignore next */
-              throw new Error(error);
-            }
+              throw new Error(String(error));
+            };
             try {
               const [MajTableResult]: [MajTableResult] = await this.client.MajTableAsync(
                   {_cFiche: `<![CDATA[<?xml version="1.0" encoding="utf-16"?>${majTableXml}]]>`},
                   {timeout: 30000},
               );
 
-              /* istanbul ignore next */ if (MajTableResult.MajTableResult.includes('<error><code>21</code></error>') || MajTableResult.MajTableResult.includes('<error><code>24</code></error>')) {
+              /* istanbul ignore next */ if (MajTableResult.MajTableResult.includes("<error><code>21</code></error>") || MajTableResult.MajTableResult.includes("<error><code>24</code></error>")) {
                 this
                     .invalidateSoapClient()
                     .invalidateApiToken();
@@ -508,14 +512,14 @@ export default class IdylisAPI {
                     primaryKey,
                     tableUpdateArray,
                 );
-              } else if (MajTableResult.MajTableResult.includes('<error><code>-99</code><message>Object reference not set to an instance of an object.</message></error>')) {
+              } else if (MajTableResult.MajTableResult.includes("<error><code>-99</code><message>Object reference not set to an instance of an object.</message></error>")) {
                 /* istanbul ignore next */
                 updateConfirmation = false;
                 return originJsonDocument;
               } else {
                 // ***************** START OF VERIFICATION THAT UPDATE HAS BEEN SUCCESSFUL ***************** //
 
-                if (MajTableResult.MajTableResult.includes('<success><message>ok</message></success>')) {
+                if (MajTableResult.MajTableResult.includes("<success><message>ok</message></success>")) {
                   try {
                     updatedXmlDocument = await this.findDocument(
                         docType,
@@ -530,15 +534,15 @@ export default class IdylisAPI {
                     );
                   } catch (error) {
                     /* istanbul ignore next */
-                    throw new Error(error);
-                  }
+                    throw new Error(String(error));
+                  };
 
                   if (!typeguards.isString(updatedXmlDocument)) {
                     /* istanbul ignore next */
                     return false;
                   }
 
-                  if (Parser.validate(updatedXmlDocument) && '' !== updatedXmlDocument) {
+                  if (Parser.validate(updatedXmlDocument) && "" !== updatedXmlDocument) {
                     const updatedJsonDocument: OriginJsonDocument = Parser.parse(updatedXmlDocument, options);
                     jsonDocumentUpdatedFiche = updatedJsonDocument[docType]?.FICHE;
 
@@ -547,7 +551,7 @@ export default class IdylisAPI {
                       const originValue: string[] = Object.values(keyToCheck);
                       const updatedValue: string[] = Object.values(table);
 
-                      if (typeguards.isCdata(keyToCheck) && keyToCheck?.__cdata !== '') {
+                      if (typeguards.isCdata(keyToCheck) && keyToCheck?.__cdata !== "") {
                         if (String(originValue) === String(updatedValue)) {
                           updateConfirmation = true;
                         } else {
@@ -557,36 +561,36 @@ export default class IdylisAPI {
                       } else {
                         /* istanbul ignore next */
                         updateConfirmation = false;
-                      }
+                      };
                     });
                   }
                 } else {
                   /* istanbul ignore next */
                   updateConfirmation = false;
-                }
+                };
 
                 // ***************** END OF VERIFICATION THAT UPDATE HAS BEEN SUCCESSFUL ***************** //
               }
             } catch (error) {
               /* istanbul ignore next */
               updateConfirmation = false;
-            }
+            };
           } else {
             /* istanbul ignore next */
             updateConfirmation = false;
-          }
+          };
         } else {
           /* istanbul ignore next */
           updateConfirmation = false;
-        }
+        };
       } else {
         /* istanbul ignore next */
         updateConfirmation = false;
-      }
+      };
     } else {
       /* istanbul ignore next */
       updateConfirmation = false;
-    }
+    };
     return updateConfirmation;
   };
 
@@ -602,8 +606,8 @@ export default class IdylisAPI {
       await this.addSoapClientHeader();
     } catch (error) {
       /* istanbul ignore next */
-      throw new Error(error);
-    }
+      throw new Error(String(error));
+    };
     if (String(this.token) && Number(this.token) !== -1) {
       if (this.client) {
         try {
@@ -614,28 +618,28 @@ export default class IdylisAPI {
 
           const response: string = JSON.stringify(rawResponse);
 
-          /* istanbul ignore next */ if (response.includes('<error><code>21</code></error>') || response.includes('<error><code>24</code></error>')) {
+          /* istanbul ignore next */ if (response.includes("<error><code>21</code></error>") || response.includes("<error><code>24</code></error>")) {
             this
                 .invalidateSoapClient()
                 .invalidateApiToken();
             return await this.insertMainDoc(cFicheMainDoc);
           }
 
-          if (response.includes('<success><message>ok</message></success>')) {
+          if (response.includes("<success><message>ok</message></success>")) {
             cFicheMainDocConfirmation = true;
           }
         } catch (error) {
           /* istanbul ignore next */
-          throw new Error(error);
-        }
+          throw new Error(String(error));
+        };
       } else {
         /* istanbul ignore next */ try {
           this.invalidateSoapClient();
           return await this.insertMainDoc(cFicheMainDoc);
         } catch (error) {
           /* istanbul ignore next */
-          throw new Error(error);
-        }
+          throw new Error(String(error));
+        };
       }
     } else {
       /* istanbul ignore next */ try {
@@ -645,9 +649,9 @@ export default class IdylisAPI {
         return await this.insertMainDoc(cFicheMainDoc);
       } catch (error) {
         /* istanbul ignore next */
-        throw new Error(error);
-      }
-    }
+        throw new Error(String(error));
+      };
+    };
     return cFicheMainDocConfirmation;
   };
 
@@ -663,8 +667,8 @@ export default class IdylisAPI {
       await this.addSoapClientHeader();
     } catch (error) {
       /* istanbul ignore next */
-      throw new Error(error);
-    }
+      throw new Error(String(error));
+    };
     if (String(this.token) && Number(this.token) !== -1) {
       if (this.client) {
         try {
@@ -675,43 +679,43 @@ export default class IdylisAPI {
 
           const response: string = JSON.stringify(rawResponse);
 
-          /* istanbul ignore next */ if (response.includes('<error><code>21</code></error>') || response.includes('<error><code>24</code></error>')) {
+          /* istanbul ignore next */ if (response.includes("<error><code>21</code></error>") || response.includes("<error><code>24</code></error>")) {
             this.invalidateApiToken();
             return await this.insertSubDoc(cFicheSubDoc);
           }
 
-          if (response.includes('<success><message>ok</message></success>')) {
+          if (response.includes("<success><message>ok</message></success>")) {
             cFicheSubDocConfirmation = true;
           }
         } catch (error) {
           /* istanbul ignore next */
-          throw new Error(error); ;
-        }
+          throw new Error(String(error)); ;
+        };
       } else {
         /* istanbul ignore next */ try {
           this.invalidateSoapClient();
           return await this.insertSubDoc(cFicheSubDoc);
         } catch (error) {
           /* istanbul ignore next */
-          throw new Error(error);
-        }
-      }
+          throw new Error(String(error));
+        };
+      };
     } else {
       /* istanbul ignore next */ try {
         this.invalidateSoapClient();
         return await this.insertSubDoc(cFicheSubDoc);
       } catch (error) {
         /* istanbul ignore next */
-        throw new Error(error);
-      }
-    }
+        throw new Error(String(error));
+      };
+    };
     return cFicheSubDocConfirmation;
   };
 
   /**
      * @param {string} mainDocType this is the code which represents
      * the type of document that will be sent to Idylis API
-     * (e.g..: 'FA_DEVIS', 'FA_BL', etc).
+     * (e.g..: "FA_DEVIS", "FA_BL", etc).
      * @param {IdylisTableField[]} mainDocFieldsArray this represents an array
      * containing objects of pair key value representing
      * the field as the key and the value of that field as the value. Please
@@ -739,8 +743,8 @@ export default class IdylisAPI {
       subDocType?: string,
       subDocFieldsArray?: IdylisTableField[],
   ): Promise<boolean> {
-    let cFicheMainDocXml: string = '';
-    let cFicheSubDocXml: string = '';
+    let cFicheMainDocXml: string = "";
+    let cFicheSubDocXml: string = "";
     let cFicheMainDocConfirmation: boolean = false;
     let cFicheSubDocConfirmation: boolean = false;
     let finalConfirmation: boolean = false;
@@ -757,7 +761,7 @@ export default class IdylisAPI {
       mainDocFieldsArray.forEach((table: IdylisTableField) => {
         const keyToCreate: string[] = Object.keys(table);
         const valueToCreate: string[] = Object.values(table);
-        if (String(keyToCreate) !== '') {
+        if (String(keyToCreate) !== "") {
           cFicheMainDoc[mainDocType].FICHE[String(keyToCreate)] =
               `<![CDATA[${Object.values({__cdata: String(valueToCreate)})}]]]]><![CDATA[>`;
         }
@@ -765,12 +769,12 @@ export default class IdylisAPI {
 
       cFicheMainDocXml = j2xParser.parse(cFicheMainDoc);
 
-      if (Parser.validate(cFicheMainDocXml) &&'' !== cFicheMainDocXml) {
+      if (Parser.validate(cFicheMainDocXml) &&"" !== cFicheMainDocXml) {
         try {
           cFicheMainDocConfirmation = await this.insertMainDoc(cFicheMainDocXml);
         } catch (error) {
           /* istanbul ignore next */
-          throw new Error(error);
+          throw new Error(String(error));
         };
 
         // If there is a sub doc type to add to the main doc type
@@ -784,7 +788,7 @@ export default class IdylisAPI {
           subDocFieldsArray.forEach((table: IdylisTableField) => {
             const keyToCreate: string[] = Object.keys(table);
             const valueToCreate: string[] = Object.values(table);
-            if (String(keyToCreate) !== '') {
+            if (String(keyToCreate) !== "") {
               cFicheSubDocJson[subDocType].FICHE[String(keyToCreate)] =
             `<![CDATA[${Object.values({__cdata: String(valueToCreate)})}]]]]><![CDATA[>`;
             }
@@ -792,22 +796,22 @@ export default class IdylisAPI {
 
           cFicheSubDocXml = j2xParser.parse(cFicheSubDocJson);
 
-          if ('' !== cFicheSubDocXml) {
+          if ("" !== cFicheSubDocXml) {
             if (cFicheMainDocConfirmation) {
               try {
                 cFicheSubDocConfirmation = await this.insertSubDoc(cFicheSubDocXml);
               } catch (error) {
                 /* istanbul ignore next */
-                throw new Error(error);
+                throw new Error(String(error));
               };
             } else {
               /* istanbul ignore next */
-              throw new Error(`The base of a quotation couldn't be written successfully on Idylis.`);
+              throw new Error(`The base of a quotation couldn"t be written successfully on Idylis.`);
             };
           } else {
             /* istanbul ignore next */
             throw new Error(`Either the document for the mainDoc or the subDoc is not a valid XML. Please check and try again.`);
-          }
+          };
           if (cFicheSubDocConfirmation && cFicheMainDocConfirmation) {
             finalConfirmation = true;
           }

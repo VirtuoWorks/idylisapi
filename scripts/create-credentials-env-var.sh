@@ -5,4 +5,4 @@
 #     based on arguments passed at runtime     #
 # ******************************************** #
 
-env CODEABONNE=$1 IDENTIFIANT=$2 MOTDEPASSE=$3 tsdx test
+env "CODEABONNE"=$1 "IDENTIFIANT"=$2 "MOTDEPASSE"=$3 tsdx test
