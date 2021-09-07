@@ -59,7 +59,6 @@ _Please note that you do not need to use this method before using other methods,
 const authorizationToken = await idylisapi.getAuthToken();
 ```
 
-
 ## Finding a document on Idylis
 
 The idylisapi object has a method called ```findDocument()``` which allows to find a given document on Idylis. To do so, ```findDocument()``` requires certain arguments to function. The arguments are as follow:
