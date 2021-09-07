@@ -1,4 +1,4 @@
-import IdylisAPI from "./IdylisAPI";
+import IdylisAPI from './IdylisAPI';
 
 /**
  * @param {string} url the url to connect to your Idylis API endpoint

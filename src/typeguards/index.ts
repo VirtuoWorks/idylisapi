@@ -1,4 +1,4 @@
-import {CDATA, JsonDocumentFicheToUpdate} from "./interfaces";
+import {CDATA, JsonDocumentFicheToUpdate} from './interfaces';
 
 
 /**
@@ -20,7 +20,7 @@ export class Typeguards {
   isString(
       str: string | any
   ): str is string {
-    return "string" === typeof str || str instanceof String;
+    return 'string' === typeof str || str instanceof String;
   };
 
   /**
