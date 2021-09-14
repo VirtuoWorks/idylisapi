@@ -400,11 +400,6 @@ export default class IdylisAPI {
    * objects of pair key value representing the table to be updated as the key and
    * the value to update as the value
    * (e.g.: [{'ADRESSE1': 'My new address'}, {'NOMCONTACT': 'John Doe'}]).
-   * @param {string} docTypeToUpdate this represents the type of the main document
-   * to update (only used if updating a nested table, like FA_COMPTETVADISTINCT,
-   * e.g.: 'CODEARTICLE');
-   * @param {string} docRef this represents the reference for the main document
-   * to update (only used if updating a nested table, like FA_COMPTETVADISTINCT).
    * @return {Promise<boolean | OriginJsonDocument>} this method returns either a
    * boolean indicating whether the update was successful or not, or the original
    * document if the update was not successful because of an incorrect key/pair inside
@@ -422,8 +417,6 @@ export default class IdylisAPI {
       withCompression: number,
       primaryKey: string,
       tableUpdateArray: IdylisTableField[],
-      docTypeToUpdate?: string,
-      docRef?: string,
   ): Promise<boolean | OriginJsonDocument> {
     let originXmlDocument: string | boolean = '';
     let majTableXml: string = '';
@@ -462,27 +455,13 @@ export default class IdylisAPI {
         const primaryKeyValue: string = jsonDocumentFicheToUpdate[primaryKey]?.__cdata;
 
         if (typeguards.isPrimaryKeyValue(primaryKeyValue)) {
-          if (
-            typeguards.isString(docTypeToUpdate) &&
-            typeguards.isString(docRef)
-          ) {
-            majTableJson = {
-              [docType]: {
-                FICHE: {
-                  [primaryKey]: `<![CDATA[${primaryKeyValue}]]]]><![CDATA[>`,
-                  [docTypeToUpdate]: `<![CDATA[${docRef}]]]]><![CDATA[>`,
-                },
+          majTableJson = {
+            [docType]: {
+              FICHE: {
+                [primaryKey]: `<![CDATA[${primaryKeyValue}]]]]><![CDATA[>`,
               },
-            };
-          } else {
-            majTableJson = {
-              [docType]: {
-                FICHE: {
-                  [primaryKey]: `<![CDATA[${primaryKeyValue}]]]]><![CDATA[>`,
-                },
-              },
-            };
-          }
+            },
+          };
           tableUpdateArray.forEach((table: IdylisTableField) => {
             const keyToCheck: CDATA = jsonDocumentFicheToUpdate[String(Object.keys(table))];
             const keyToUpdate: string[] = Object.keys(table);

@@ -58,7 +58,7 @@ describe('The IdyliAPI class', () => {
       objetDevis = `Modifié pour test unitaire (random number: ${Math.floor(Math.random() * 100 + Math.random() * 10)})`;
     });
 
-    test('that should return true if the update was successful', async () => {
+    test('that should return true if it update was successful', async () => {
       const receivedValue = await idylis.updateDocument(
           'FA_DEVIS',
           'CODEDEVIS',
@@ -77,7 +77,7 @@ describe('The IdyliAPI class', () => {
           .toBe(true);
     });
 
-    test('that should return false if the update was unsuccessful', async () => {
+    test('that should return false if it update was unsuccessful', async () => {
       const receivedValue = await idylis.updateDocument(
           'FA_WRONGTYPE',
           'CODEDEVIS',
