@@ -473,10 +473,10 @@ export default class IdylisAPI {
                 majTableJson[docType].FICHE[String(keyToUpdate)] = `<![CDATA[${Object.values({__cdata: String(updatedValue)})}]]]]><![CDATA[>`;
                 jsonDocumentFicheToUpdate[String(keyToUpdate)] = {__cdata: String(updatedValue)};
               } else {
-                throw new Error(``);
+                throw new Error(`Cannot update this particular table: both the original value and the updated value are the same.`);
               }
             } else {
-              throw new Error(``);
+              throw new Error(`Cannot update this particular table: one or many keys in the table do not match any existing table on Idylis.`);
             }
           });
 
