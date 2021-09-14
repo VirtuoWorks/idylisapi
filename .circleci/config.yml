@@ -36,7 +36,9 @@ jobs:
           name: Installing dependencies & starting tests
           command: npm install && npm run test:dev
       - coveralls/upload:
-          path_to_lcov: './coverage/lcov.info'
+          path_to_lcov: ./coverage/lcov.info 
+          token: COVERALLS_REPO_TOKEN 
+          coveralls_endpoint: https://coveralls.io 
 workflows:
   version: 2
   idylisapi_workflow:
