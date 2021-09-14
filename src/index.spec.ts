@@ -1,4 +1,4 @@
-import idylisapi from '.';
+import {idylisapi} from '.';
 import IdylisAPI from './IdylisAPI';
 
 describe('The idylisapi function', () => {
