@@ -1,4 +1,6 @@
 version: 2.1
+orbs:
+  coveralls: coveralls/coveralls@1.0.6
 jobs:
   build:
     docker:
@@ -6,25 +8,25 @@ jobs:
     steps:
       - checkout
       - run:
-        name: Checking code
-        command: |
-          echo 'Checking code integrity'
-          ls -la
+          name: Checking code
+          command: |
+            echo 'Checking code integrity...'
+            ls -la
       - run:
-        name: Checking node version
-        command: |
-          echo 'Now checking node version...'
-          node -v
+          name: Checking node version
+          command: |
+            echo 'Now checking node version...'
+            node -v
       - run:
           name: Installing dependencies
           command: |
-            echo 'Now building...'
-            npm run build
+            echo 'Now installing dependencies...'
+            npm install && echo 'Dependency installation completed successfully!'
       - run:
           name: Building
           command: |
             echo 'Now building IdylisAPI...'
-            npm run build
+            npm run build && echo 'IdylisAPI has been successfully built!'
   test:
     docker:
       - image: circleci/node:14.17.5
@@ -33,6 +35,8 @@ jobs:
       - run:
           name: Installing dependencies & starting tests
           command: npm install && npm run test:dev
+      - coveralls/upload:
+          path_to_lcov: './coverage/lcov.info'
 workflows:
   version: 2
   idylisapi_workflow:
