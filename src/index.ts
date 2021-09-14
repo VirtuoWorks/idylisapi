@@ -11,7 +11,7 @@ import IdylisAPI from './IdylisAPI';
  * to make calls to the Idylis API
  * @return {IdylisAPI} this function returns a usable instance of IdylisAPI.
 */
-export default function idylisapi(
+export function idylisapi(
     url: string,
     code: string,
     id: string,
