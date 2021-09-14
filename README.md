@@ -4,6 +4,8 @@
 [![made-with-Markdown](https://img.shields.io/badge/Made%20with-Markdown-1f425f.svg)](http://commonmark.org)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/fdc9b9088db54e40b504eac2bdb9e469)](https://www.codacy.com/gh/VirtuoWorks/idylisapi/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=VirtuoWorks/idylisapi&amp;utm_campaign=Badge_Grade)
 [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/VirtuoWorks/idylisapi/graphs/commit-activity)
+[![Virtuoworks](https://circleci.com/gh/Virtuoworks/idylisapi.svg?style=shield&circle-token=d3c702e636424140804d97e3afededb793549bba)](https://github.com/VirtuoWorks/idylisapi/src)
+
 
 # Introduction
 An easy to use API to communicate with [Idylis](https://www.idylis.com/index)" API.

@@ -1,50 +1,43 @@
 version: 2.1
 jobs:
-  Checking-Code:
+  build:
+    docker:
+      - image: circleci/node:14.17.5
     steps:
       - checkout
       - run:
-          name: Checking code
-          command: |
-            echo 'Checking code integrity'
-            ls -la
-  Checking-Node-Version:
-    docker:
-      # https://circleci.com/docs/2.0/circleci-images/#nodejs
-      - image: circleci/node:14.17.5
-    steps:
+        name: Checking code
+        command: |
+          echo 'Checking code integrity'
+          ls -la
       - run:
         name: Checking node version
         command: |
           echo 'Now checking node version...'
           node -v
-  Building-App:
-    steps:
       - run:
-          name: Building
+          name: Installing dependencies
           command: |
             echo 'Now building...'
             npm run build
-  Running-UT:
-    steps:
       - run:
-          name: Running tests
+          name: Building
           command: |
-            echo 'Now running unit tests...'
-            npm run test $CODEABONNE $IDENTIFIANT $MOTDEPASSE
-
+            echo 'Now building IdylisAPI...'
+            npm run build
+  test:
+    docker:
+      - image: circleci/node:14.17.5
+    steps:
+      - checkout
+      - run:
+          name: Installing dependencies & starting tests
+          command: npm install && npm run test:dev
 workflows:
-  version: 2.1
-  Idylisapi_Workflow:
+  version: 2
+  idylisapi_workflow:
     jobs:
-      - Checking-Code
-      - Checking-Node-Version:
+      - build
+      - test:
           requires:
-            - Checking-Code
-      - Building-App:
-        requires:
-          - Checking-Node-Version
-      - Running-UT:
-          context: idylisapi-run-unit-tests
-          requires:
-            - Building-App
+            - build
