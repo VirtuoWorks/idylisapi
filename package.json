@@ -19,12 +19,11 @@
     "start": "node dist/index.js",
     "build": "tsdx build",
     "test": "tsdx test",
-    "test-dev": "tsdx build && npm run-script init-test",
+    "test-dev": "tsdx build && npm run-script ./bin/test.sh",
     "lint": "tsdx lint",
     "prepare": "tsdx build",
     "size": "size-limit",
-    "analyze": "size-limit --why",
-    "init-test": "scripts/create-credentials-env-var.sh"
+    "analyze": "size-limit --why"
   },
   "repository": {
     "type": "git",
