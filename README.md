@@ -8,7 +8,7 @@
 
 
 # Introduction
-An easy to use API to communicate with [Idylis](https://www.idylis.com/index)" API.
+An easy to use API to communicate with [Idylis](https://www.idylis.com/index) API.
 It can be used to find, update or insert a document on Idylis in a very straightforward and developer friendly way.
 This API was developed in order to facilitate the communication between any given API and Idylis. 
 One only needs to be in possession of their credentials to connect to Idylis to use this API.

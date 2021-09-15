@@ -487,10 +487,10 @@ export default class IdylisAPI {
                   majTableJson[docType].FICHE[String(keyToUpdate)] = `<![CDATA[${Object.values({__cdata: String(updatedValue)})}]]]]><![CDATA[>`;
                   jsonDocumentFicheToUpdate[String(keyToUpdate)] = {__cdata: String(updatedValue)};
                 } else {
-                  throw new Error(`Cannot update this particular table: both the original value and the updated value are the same.`);
+                  throw new Error(`Cannot update this particular table: ${JSON.stringify(keyToCheck)} because both the original value and the updated value are the same.`);
                 }
               } else {
-                throw new Error(`Cannot update because the provided key is either not a cdata or its value is empty.`);
+                throw new Error(`Cannot update because the provided key (${JSON.stringify(keyToCheck)}) is either not a cdata or its value is empty.`);
               }
             } else {
               throw new Error('The document to update is undefined. Cannot proceed.');
