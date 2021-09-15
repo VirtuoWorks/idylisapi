@@ -492,7 +492,7 @@ export default class IdylisAPI {
                   throw new Error(`Cannot update this particular table: both the original value and the updated value are the same.`);
                 }
               } else {
-                throw new Error(`Cannot update this particular table: one or many keys in the table do not match any existing table on Idylis.`);
+                throw new Error(`Cannot update this particular table: ${keyToCheck}. This key in the provided table do not match any existing table on Idylis.`);
               }
             } else {
               throw new Error('The document to update is undefined. Cannot proceed.');
