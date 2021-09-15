@@ -91,7 +91,7 @@ describe('The IdyliAPI class', () => {
           0,
           'REFTVADISTINCT',
           [{'COMPTEVENTETVA': `${compteAchatTest}`}],
-          '7',
+          '2',
       );
 
       expect(receivedValue)

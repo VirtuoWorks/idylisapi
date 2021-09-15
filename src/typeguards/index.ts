@@ -31,7 +31,7 @@ export class Typeguards {
    * is the one expected
    */
   isPrimaryKeyValue(
-      primaryKeyValue: string | void,
+      primaryKeyValue: string | undefined,
   ): primaryKeyValue is string {
     return !!primaryKeyValue;
   };

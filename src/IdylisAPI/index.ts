@@ -482,7 +482,7 @@ export default class IdylisAPI {
               const originValue: string[] = Object.values(keyToCheck);
               const updatedValue: string[] = Object.values(table);
 
-              if (typeguards.isCdata(keyToCheck) && keyToCheck?.__cdata !== '') {
+              if (typeguards.isCdata(keyToCheck)) {
                 if (String(originValue) !== String(updatedValue)) {
                   majTableJson[docType].FICHE[String(keyToUpdate)] = `<![CDATA[${Object.values({__cdata: String(updatedValue)})}]]]]><![CDATA[>`;
                   jsonDocumentFicheToUpdate[String(keyToUpdate)] = {__cdata: String(updatedValue)};
@@ -579,7 +579,7 @@ export default class IdylisAPI {
                         const originValue: string[] = Object.values(keyToCheck);
                         const updatedValue: string[] = Object.values(table);
 
-                        if (typeguards.isCdata(keyToCheck) && keyToCheck?.__cdata !== '') {
+                        if (typeguards.isCdata(keyToCheck)) {
                           if (String(originValue) === String(updatedValue)) {
                             updateConfirmation = true;
                           } else {
@@ -610,6 +610,7 @@ export default class IdylisAPI {
           };
         } else {
           /* istanbul ignore next */
+          console.log('primarykey is not a string');
           updateConfirmation = false;
         };
       } else {
