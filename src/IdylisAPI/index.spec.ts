@@ -78,7 +78,7 @@ describe('The IdyliAPI class', () => {
     });
 
     test('that should return true if a sub table update was successful', async () => {
-      const compteAchatTest: number = Math.floor(Math.random() * 1000 + 4871);
+      const compteAchatTest: number = Math.ceil(Math.random() * 10000 + Math.random() * 1000 + Math.random() * 100 + Math.random() * 10);
       const receivedValue = await idylis.updateDocument(
           'FA_COMPTETVADISTINCT',
           'CODEARTICLE',
@@ -90,7 +90,7 @@ describe('The IdyliAPI class', () => {
           0,
           0,
           'REFTVADISTINCT',
-          [{'COMPTEACHATTVA': `${compteAchatTest}`}],
+          [{'COMPTEVENTETVA': `${compteAchatTest}`}],
           '7',
       );
 
@@ -123,7 +123,7 @@ describe('The IdyliAPI class', () => {
     let docNumber: string = '';
 
     beforeEach(() => {
-      docNumber = `PITU0${Math.floor(Math.random() * 100 + Math.random() * 10)}`;
+      docNumber = `PITU${Math.ceil(Math.random() * 1000 + Math.random() * 100 + Math.random() * 10)}`;
     });
 
     test('that should return true if the insertion of the main document was successful', async () => {

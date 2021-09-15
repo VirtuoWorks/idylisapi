@@ -464,8 +464,6 @@ export default class IdylisAPI {
         }
       }
 
-      // const jsonDocumentFicheToUpdate: JsonDocumentFicheToUpdate = originJsonDocument[docType]?.FICHE;
-
       if (typeguards.isJsonDocumentFiche(jsonDocumentFicheToUpdate)) {
         const primaryKeyValue: string = jsonDocumentFicheToUpdate[primaryKey]?.__cdata;
 
@@ -492,7 +490,7 @@ export default class IdylisAPI {
                   throw new Error(`Cannot update this particular table: both the original value and the updated value are the same.`);
                 }
               } else {
-                throw new Error(`Cannot update this particular table: ${keyToCheck}. This key in the provided table do not match any existing table on Idylis.`);
+                throw new Error(`Cannot update because the provided key is either not a cdata or its value is empty.`);
               }
             } else {
               throw new Error('The document to update is undefined. Cannot proceed.');
