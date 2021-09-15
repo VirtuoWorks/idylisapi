@@ -65,7 +65,7 @@ interface FICHEXML {
 interface ORIGINFICHE {
   CRITERES: CDATA,
   ORDRE: CDATA,
-  FICHE: FICHE
+  FICHE: FICHE | FICHE[]
 }
 
 interface MAJTABLEFICHE {

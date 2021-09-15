@@ -395,11 +395,14 @@ export default class IdylisAPI {
    * @param {number} withCompression this number allows to choose whether the
    * response will be compressed or not (possible choices: 0, 1).
    * @param {string} primaryKey this represents the primary key necessary to update
-   * any table (e.g.: 'REFBL' for delivery notes).
+   * any table. Generally starts with 'REF' (e.g.: 'REFBL', 'REFDEVIS').
    * @param {IdylisTableField[]} tableUpdateArray this represents an array containing
    * objects of pair key value representing the table to be updated as the key and
-   * the value to update as the value
-   * (e.g.: [{'ADRESSE1': 'My new address'}, {'NOMCONTACT': 'John Doe'}]).
+   * the value to update as the value (e.g.: [{'ADRESSE1': 'My new address'},
+   * {'NOMCONTACT': 'John Doe'}]).
+   * @param {string} refToUpdateValue [OPTIONAL] this represents the value for the reference
+   * to use to target the table to update in case the update targets a sub table
+   * (like FA_COMPTETVADISTINCT).
    * @return {Promise<boolean | OriginJsonDocument>} this method returns either a
    * boolean indicating whether the update was successful or not, or the original
    * document if the update was not successful because of an incorrect key/pair inside
@@ -417,12 +420,12 @@ export default class IdylisAPI {
       withCompression: number,
       primaryKey: string,
       tableUpdateArray: IdylisTableField[],
-  ): Promise<boolean | OriginJsonDocument> {
+      refToUpdateValue?: string,
+  ): Promise<boolean | JsonDocumentFicheToUpdate> {
     let originXmlDocument: string | boolean = '';
     let majTableXml: string = '';
     let majTableJson: MajTableJson = {};
     let updatedXmlDocument: string | boolean = '';
-    let jsonDocumentUpdatedFiche: JsonDocumentFicheToUpdate;
     let updateConfirmation: boolean = false;
 
     try {
@@ -449,7 +452,19 @@ export default class IdylisAPI {
 
     if (Parser.validate(originXmlDocument) && '' !== originXmlDocument) {
       const originJsonDocument: OriginJsonDocument = Parser.parse(originXmlDocument, options);
-      const jsonDocumentFicheToUpdate: JsonDocumentFicheToUpdate = originJsonDocument[docType]?.FICHE;
+      let jsonDocumentFicheToUpdate: JsonDocumentFicheToUpdate | JsonDocumentFicheToUpdate[] = originJsonDocument[docType]?.FICHE;
+
+      if (undefined !== refToUpdateValue) {
+        if (Array.isArray(jsonDocumentFicheToUpdate)) {
+          jsonDocumentFicheToUpdate.forEach((fiche: JsonDocumentFicheToUpdate) => {
+            if (fiche[primaryKey].__cdata === refToUpdateValue) {
+              jsonDocumentFicheToUpdate = fiche;
+            }
+          });
+        }
+      }
+
+      // const jsonDocumentFicheToUpdate: JsonDocumentFicheToUpdate = originJsonDocument[docType]?.FICHE;
 
       if (typeguards.isJsonDocumentFiche(jsonDocumentFicheToUpdate)) {
         const primaryKeyValue: string = jsonDocumentFicheToUpdate[primaryKey]?.__cdata;
@@ -463,20 +478,24 @@ export default class IdylisAPI {
             },
           };
           tableUpdateArray.forEach((table: IdylisTableField) => {
-            const keyToCheck: CDATA = jsonDocumentFicheToUpdate[String(Object.keys(table))];
-            const keyToUpdate: string[] = Object.keys(table);
-            const originValue: string[] = Object.values(keyToCheck);
-            const updatedValue: string[] = Object.values(table);
+            if (typeguards.isJsonDocumentFiche(jsonDocumentFicheToUpdate)) {
+              const keyToCheck: CDATA = jsonDocumentFicheToUpdate[String(Object.keys(table))];
+              const keyToUpdate: string[] = Object.keys(table);
+              const originValue: string[] = Object.values(keyToCheck);
+              const updatedValue: string[] = Object.values(table);
 
-            if (typeguards.isCdata(keyToCheck) && keyToCheck?.__cdata !== '') {
-              if (String(originValue) !== String(updatedValue)) {
-                majTableJson[docType].FICHE[String(keyToUpdate)] = `<![CDATA[${Object.values({__cdata: String(updatedValue)})}]]]]><![CDATA[>`;
-                jsonDocumentFicheToUpdate[String(keyToUpdate)] = {__cdata: String(updatedValue)};
+              if (typeguards.isCdata(keyToCheck) && keyToCheck?.__cdata !== '') {
+                if (String(originValue) !== String(updatedValue)) {
+                  majTableJson[docType].FICHE[String(keyToUpdate)] = `<![CDATA[${Object.values({__cdata: String(updatedValue)})}]]]]><![CDATA[>`;
+                  jsonDocumentFicheToUpdate[String(keyToUpdate)] = {__cdata: String(updatedValue)};
+                } else {
+                  throw new Error(`Cannot update this particular table: both the original value and the updated value are the same.`);
+                }
               } else {
-                throw new Error(`Cannot update this particular table: both the original value and the updated value are the same.`);
+                throw new Error(`Cannot update this particular table: one or many keys in the table do not match any existing table on Idylis.`);
               }
             } else {
-              throw new Error(`Cannot update this particular table: one or many keys in the table do not match any existing table on Idylis.`);
+              throw new Error('The document to update is undefined. Cannot proceed.');
             }
           });
 
@@ -515,7 +534,7 @@ export default class IdylisAPI {
               } else if (MajTableResult.MajTableResult.includes('<error><code>-99</code><message>Object reference not set to an instance of an object.</message></error>')) {
                 /* istanbul ignore next */
                 updateConfirmation = false;
-                return originJsonDocument;
+                return jsonDocumentFicheToUpdate;
               } else {
                 // ***************** START OF VERIFICATION THAT UPDATE HAS BEEN SUCCESSFUL ***************** //
 
@@ -544,24 +563,36 @@ export default class IdylisAPI {
 
                   if (Parser.validate(updatedXmlDocument) && '' !== updatedXmlDocument) {
                     const updatedJsonDocument: OriginJsonDocument = Parser.parse(updatedXmlDocument, options);
-                    jsonDocumentUpdatedFiche = updatedJsonDocument[docType]?.FICHE;
+                    let jsonDocumentUpdatedFiche: JsonDocumentFicheToUpdate | JsonDocumentFicheToUpdate[] = updatedJsonDocument[docType]?.FICHE;
+
+                    if (undefined !== refToUpdateValue) {
+                      if (Array.isArray(jsonDocumentUpdatedFiche)) {
+                        jsonDocumentUpdatedFiche.forEach((fiche: JsonDocumentFicheToUpdate) => {
+                          if (fiche[primaryKey].__cdata === refToUpdateValue) {
+                            jsonDocumentUpdatedFiche = fiche;
+                          }
+                        });
+                      }
+                    }
 
                     tableUpdateArray.forEach((table: IdylisTableField) => {
-                      const keyToCheck: CDATA = jsonDocumentUpdatedFiche[String(Object.keys(table))];
-                      const originValue: string[] = Object.values(keyToCheck);
-                      const updatedValue: string[] = Object.values(table);
+                      if (typeguards.isJsonDocumentFiche(jsonDocumentUpdatedFiche)) {
+                        const keyToCheck: CDATA = jsonDocumentUpdatedFiche[String(Object.keys(table))];
+                        const originValue: string[] = Object.values(keyToCheck);
+                        const updatedValue: string[] = Object.values(table);
 
-                      if (typeguards.isCdata(keyToCheck) && keyToCheck?.__cdata !== '') {
-                        if (String(originValue) === String(updatedValue)) {
-                          updateConfirmation = true;
+                        if (typeguards.isCdata(keyToCheck) && keyToCheck?.__cdata !== '') {
+                          if (String(originValue) === String(updatedValue)) {
+                            updateConfirmation = true;
+                          } else {
+                            /* istanbul ignore next */
+                            updateConfirmation = false;
+                          }
                         } else {
                           /* istanbul ignore next */
                           updateConfirmation = false;
-                        }
-                      } else {
-                        /* istanbul ignore next */
-                        updateConfirmation = false;
-                      };
+                        };
+                      }
                     });
                   }
                 } else {

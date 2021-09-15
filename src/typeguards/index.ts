@@ -56,7 +56,9 @@ export class Typeguards {
    * is the one expected
    */
   isJsonDocumentFiche(
-      jsonDocument: JsonDocumentFicheToUpdate | void,
+      jsonDocument: JsonDocumentFicheToUpdate |
+                    undefined |
+                    JsonDocumentFicheToUpdate[],
   ): jsonDocument is JsonDocumentFicheToUpdate {
     return !!jsonDocument;
   };
