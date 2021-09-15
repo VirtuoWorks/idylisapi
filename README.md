@@ -80,7 +80,24 @@ In order to obtain an authorization token, required to make API calls to Idylis 
 _Please note that you do not need to use this method before using other methods, such as ```insertDocument()``` or ```findDocument()```, for these methods already call ```getAuthToken()```._
 
 ```javascript
-const authorizationToken = await idylisapi.getAuthToken();
+// ESM
+let authorizationToken = '';
+
+try {
+  authorizationToken = await idylis.getAuthToken();
+  console.log('New token: ', authorizationToken);
+} catch (error) {
+    console.error(error.message);
+}
+
+// CJS
+idylis.getAuthToken()
+      .then((token) => {
+        console.log('New token: ', token);
+      })
+      .catch((error) => {
+        console.log('Woops... could not get a new token.');
+      });
 ```
 
 ## Finding a document on Idylis
@@ -103,7 +120,31 @@ This method returns either a boolean if the document couldn't be found on Idylis
 **Please make sure every argument passed to a method is a string, unless clearly stated as requiring a number or an object! If you need to use a variable, use a template literal**
 
 ```javascript
-const documentFound: string = idylis.findDocument(
+// ESM
+let documentFound = '';
+
+try {
+  documentFound = await idylis.findDocument(
+    'FA_DEVIS',
+    'DATECREA',
+    '>',
+    '01/05/2020',
+    'DATECREA',
+    'ASC',
+    1,
+    0,
+    0,
+  );
+  
+  console.log(`This is the document found on Idylis: ${documentFound}`);
+} catch (error) {
+  console.error(error.message);
+};
+
+// CJS
+let documentFound = '';
+
+idylis.findDocument(
   'FA_DEVIS',
   'DATECREA',
   '>',
@@ -113,9 +154,13 @@ const documentFound: string = idylis.findDocument(
   1,
   0,
   0,
-);
-
-console.log(`This is the document found on Idylis: ${documentFound}`);
+)      
+.then((data) => {
+  console.log('Document found: ', data);
+})
+.catch((error) => {
+  console.log('Woops... could not get the document you seek.');
+});
 
 ```
 
@@ -135,28 +180,35 @@ This method returns a boolean that will give confirmation or denial about whethe
 **Please make sure every argument passed to a method is a string, unless clearly stated as requiring a number or an object! If you need to use a variable, use a template literal**
 
 ```javascript
-const insertionResult: boolean = idylis.updateDocument(
-  'FA_DEVIS',
-  [
-    {'CODECLIENT': 'CUST001'}, // required
-    {'CODEDEVIS': 'PI00001'}, // required
-    {'MODELEDOC': '133'}, // required. This number can be found in your Idylis Dashboard
-    {'DATECREA': '15/09/2021'}, // required
-  ]
-  'FA_DETAILARTICLESDEVIS', // optional
-  [
-    {'CODEARTICLE': 'PROD001'},
-    {'CODEDEVIS': 'PI00001'},
-    {'CODETVA': '1'}, // 1 for VAT, 0 for no VAT
-    {'DESCRIPTIF': 'My super new product'}, 
-    {'PU': '120'}, // Price including product tax
-    {'QTE': '3'},
-    {'TAUXTVA': '20,00'},
-    {'TOTTVA': '60,00'},
-    {'TOTTTC': '360,00'},
-    {'TOTHT': '300'} // Subtraction of TOTTTC - TOTTVA
-  ]
-);
+// ESM
+let insertionResult = false;
+
+try {
+  insertionResult = await idylis.updateDocument(
+    'FA_DEVIS',
+    [
+      {'CODECLIENT': 'CUST001'}, // required
+      {'CODEDEVIS': 'PI00001'}, // required
+      {'MODELEDOC': '133'}, // required. This number can be found in your Idylis Dashboard
+      {'DATECREA': '15/09/2021'}, // required
+    ]
+    'FA_DETAILARTICLESDEVIS', // optional
+    [
+      {'CODEARTICLE': 'PROD001'},
+      {'CODEDEVIS': 'PI00001'},
+      {'CODETVA': '1'}, // 1 for VAT, 0 for no VAT
+      {'DESCRIPTIF': 'My super new product'}, 
+      {'PU': '120'}, // Price including product tax
+      {'QTE': '3'},
+      {'TAUXTVA': '20,00'},
+      {'TOTTVA': '60,00'},
+      {'TOTTTC': '360,00'},
+      {'TOTHT': '300'} // Subtraction of TOTTTC - TOTTVA
+    ]
+  );
+} catch (error) {
+  console.error(error.message);
+};
 
 if (insertionResult) {
   console.log('The insertion was successful!');
@@ -164,6 +216,37 @@ if (insertionResult) {
   console.error('Uh-oh... something went wrong...');
 };
 
+// CJS
+let insertionResult = false;
+
+idylis.updateDocument.updateDocument(
+    'FA_DEVIS',
+    [
+      {'CODECLIENT': 'CUST001'}, // required
+      {'CODEDEVIS': 'PI00001'}, // required
+      {'MODELEDOC': '133'}, // required. This number can be found in your Idylis Dashboard
+      {'DATECREA': '15/09/2021'}, // required
+    ]
+    'FA_DETAILARTICLESDEVIS', // optional
+    [
+      {'CODEARTICLE': 'PROD001'},
+      {'CODEDEVIS': 'PI00001'},
+      {'CODETVA': '1'}, // 1 for VAT, 0 for no VAT
+      {'DESCRIPTIF': 'My super new product'}, 
+      {'PU': '120'}, // Price including product tax
+      {'QTE': '3'},
+      {'TAUXTVA': '20,00'},
+      {'TOTTVA': '60,00'},
+      {'TOTTTC': '360,00'},
+      {'TOTHT': '300'} // Subtraction of TOTTTC - TOTTVA
+    ]
+  )
+  .then((insertionResult) => {
+    console.log('The insertion was successful!');
+  })
+  .catch(error) {
+    console.log(error.message);
+  };
 ```
 
 ## Updating a document on Idylis
@@ -188,30 +271,65 @@ This method returns a boolean that will give confirmation or denial about whethe
 **Please make sure every argument passed to a method is a string, unless clearly stated as requiring a number or an object! If you need to use a variable, use a template literal**
 
 ```javascript
-const updateResult: boolean = idylis.updateDocument(
-  'FA_DEVIS',
-  'CODEDEVIS',
-  '=',
-  'PU0001',
-  'CODEDEVIS',
-  'ASC',
-  1,
-  0,
-  0,
-  'REFDEVIS',
-  [
-    {'ADRESSE1': '42, Universe Street'},
-    {'NOMCONTACT': 'Doe'},
-    {'PRENOMCONTACT': 'John'}
-  ],
-  // '<value for sub table primary key to update>'  /* This last parameter is optional and should only be used if you need to update a sub table */
-);
+// ESM
+let updateResult = false;
+
+try {
+  updateResult = await idylis.updateDocument(
+    'FA_DEVIS',
+    'CODEDEVIS',
+    '=',
+    'PU0001',
+    'CODEDEVIS',
+    'ASC',
+    1,
+    0,
+    0,
+    'REFDEVIS',
+    [
+      {'ADRESSE1': '42, Universe Street'},
+      {'NOMCONTACT': 'Doe'},
+      {'PRENOMCONTACT': 'John'}
+    ],
+    // '<value for sub table primary key to update>'  /* This last parameter is optional and should only be used if you need to update a sub table */
+  );
+} catch (error) {
+  console.error(error.message);
+};
 
 if (updateResult) {
   console.log('The update was successful!');
 } else {
   console.error('Uh-oh... something went wrong...');
 };
+
+// CJS
+let updateResult = false;
+
+idylis.updateDocument(
+    'FA_DEVIS',
+    'CODEDEVIS',
+    '=',
+    'PU0001',
+    'CODEDEVIS',
+    'ASC',
+    1,
+    0,
+    0,
+    'REFDEVIS',
+    [
+      {'ADRESSE1': '42, Universe Street'},
+      {'NOMCONTACT': 'Doe'},
+      {'PRENOMCONTACT': 'John'}
+    ],
+    // '<value for sub table primary key to update>'  /* This last parameter is optional and should only be used if you need to update a sub table */
+  )
+  .then((updateResult) => {
+    console.log('Great! The update was successful!')
+  })
+  .catch(error) {
+    console.error(error.message);
+  };
 
 ```
 
