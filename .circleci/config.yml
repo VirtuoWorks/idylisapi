@@ -21,12 +21,14 @@ jobs:
           name: Installing dependencies
           command: |
             echo 'Now installing dependencies...'
-            npm install && echo 'Dependency installation completed successfully!'
+            npm install
+            echo 'Dependency installation completed successfully!'
       - run:
           name: Building
           command: |
             echo 'Now building IdylisAPI...'
-            npm run build && echo 'IdylisAPI has been successfully built!'
+            npm run build
+            echo 'IdylisAPI has been successfully built!'
   test:
     docker:
       - image: circleci/node:14.17.5
@@ -34,7 +36,7 @@ jobs:
       - checkout
       - run:
           name: Installing dependencies & starting tests
-          command: npm install && npm run test:dev
+          command: npm install && npm run test
       - coveralls/upload:
           path_to_lcov: ./coverage/lcov.info 
           token: COVERALLS_REPO_TOKEN 
