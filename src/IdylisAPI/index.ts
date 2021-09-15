@@ -147,8 +147,7 @@ export default class IdylisAPI {
   private apiTokenIsNotEmpty(): boolean {
     if ('' !== this.token) {
       this.tokenIsValid = true;
-    } else {
-      /* istanbul ignore next */
+    } /* istanbul ignore next */ else {
       this.tokenIsValid = false;
     };
     return this.tokenIsValid;
@@ -205,9 +204,9 @@ export default class IdylisAPI {
    */
   private async tokenRequest(): Promise<string> {
     const argsAuth: Auth3 = {
-      '_codeAbonne': String(this.code || ''),
-      '_identifiant': String(this.id || ''),
-      '_motdePasse': String(this.pwd || ''),
+      '_codeAbonne': String(this.code),
+      '_identifiant': String(this.id),
+      '_motdePasse': String(this.pwd),
     };
     let client: soap.Client;
     let token: string = '';
@@ -282,8 +281,7 @@ export default class IdylisAPI {
       /* istanbul ignore next */
       throw new Error(String(error));
     }
-    if (!this.tokenIsValid) {
-      /* istanbul ignore next */
+    /* istanbul ignore next */ if (!this.tokenIsValid) {
       return;
     }
     try {
@@ -359,9 +357,8 @@ export default class IdylisAPI {
               .invalidateApiToken();
           return await this.findDocument(docType, searchCriteria, operator, criteriaValue, orderingType, orderingValue, subTable, enclosedDoc, withCompression);
         }
-        if (LireTableResult.LireTableResult.includes('<FICHE />')) {
+        /* istanbul ignore next */ if (LireTableResult.LireTableResult.includes('<FICHE />')) {
           this.invalidateSoapClient();
-          /* istanbul ignore next */
           return false;
         }
       }
@@ -445,8 +442,7 @@ export default class IdylisAPI {
       throw new Error(String(error));
     };
 
-    if (!typeguards.isString(originXmlDocument)) {
-      /* istanbul ignore next */
+    /* istanbul ignore next */ if (!typeguards.isString(originXmlDocument)) {
       return false;
     }
 
@@ -486,13 +482,13 @@ export default class IdylisAPI {
                 if (String(originValue) !== String(updatedValue)) {
                   majTableJson[docType].FICHE[String(keyToUpdate)] = `<![CDATA[${Object.values({__cdata: String(updatedValue)})}]]]]><![CDATA[>`;
                   jsonDocumentFicheToUpdate[String(keyToUpdate)] = {__cdata: String(updatedValue)};
-                } else {
+                } /* istanbul ignore next */ else {
                   throw new Error(`Cannot update this particular table: ${JSON.stringify(keyToCheck)} because both the original value and the updated value are the same.`);
                 }
-              } else {
+              } /* istanbul ignore next */ else {
                 throw new Error(`Cannot update because the provided key (${JSON.stringify(keyToCheck)}) is either not a cdata or its value is empty.`);
               }
-            } else {
+            } /* istanbul ignore next */ else {
               throw new Error('The document to update is undefined. Cannot proceed.');
             }
           });
@@ -529,8 +525,7 @@ export default class IdylisAPI {
                     primaryKey,
                     tableUpdateArray,
                 );
-              } else if (MajTableResult.MajTableResult.includes('<error><code>-99</code><message>Object reference not set to an instance of an object.</message></error>')) {
-                /* istanbul ignore next */
+              } /* istanbul ignore next */ else if (MajTableResult.MajTableResult.includes('<error><code>-99</code><message>Object reference not set to an instance of an object.</message></error>')) {
                 updateConfirmation = false;
                 return jsonDocumentFicheToUpdate;
               } else {
@@ -554,8 +549,7 @@ export default class IdylisAPI {
                     throw new Error(String(error));
                   };
 
-                  if (!typeguards.isString(updatedXmlDocument)) {
-                    /* istanbul ignore next */
+                  /* istanbul ignore next */ if (!typeguards.isString(updatedXmlDocument)) {
                     return false;
                   }
 
@@ -582,19 +576,16 @@ export default class IdylisAPI {
                         if (typeguards.isCdata(keyToCheck)) {
                           if (String(originValue) === String(updatedValue)) {
                             updateConfirmation = true;
-                          } else {
-                            /* istanbul ignore next */
+                          } /* istanbul ignore next */ else {
                             updateConfirmation = false;
                           }
-                        } else {
-                          /* istanbul ignore next */
+                        } /* istanbul ignore next */ else {
                           updateConfirmation = false;
                         };
                       }
                     });
                   }
-                } else {
-                  /* istanbul ignore next */
+                } /* istanbul ignore next */ else {
                   updateConfirmation = false;
                 };
 
@@ -604,21 +595,16 @@ export default class IdylisAPI {
               /* istanbul ignore next */
               updateConfirmation = false;
             };
-          } else {
-            /* istanbul ignore next */
+          } /* istanbul ignore next */ else {
             updateConfirmation = false;
           };
-        } else {
-          /* istanbul ignore next */
-          console.log('primarykey is not a string');
+        } /* istanbul ignore next */ else {
           updateConfirmation = false;
         };
-      } else {
-        /* istanbul ignore next */
+      } /* istanbul ignore next */ else {
         updateConfirmation = false;
       };
-    } else {
-      /* istanbul ignore next */
+    } /* istanbul ignore next */ else {
       updateConfirmation = false;
     };
     return updateConfirmation;
@@ -662,8 +648,8 @@ export default class IdylisAPI {
           /* istanbul ignore next */
           throw new Error(String(error));
         };
-      } else {
-        /* istanbul ignore next */ try {
+      } /* istanbul ignore next */ else {
+        try {
           this.invalidateSoapClient();
           return await this.insertMainDoc(cFicheMainDoc);
         } catch (error) {
@@ -671,8 +657,8 @@ export default class IdylisAPI {
           throw new Error(String(error));
         };
       }
-    } else {
-      /* istanbul ignore next */ try {
+    } /* istanbul ignore next */ else {
+      try {
         this
             .invalidateSoapClient()
             .invalidateApiToken();
@@ -716,13 +702,15 @@ export default class IdylisAPI {
 
           if (response.includes('<success><message>ok</message></success>')) {
             cFicheSubDocConfirmation = true;
+          } /* istanbul ignore next */ else {
+            cFicheSubDocConfirmation = false;
           }
         } catch (error) {
           /* istanbul ignore next */
           throw new Error(String(error)); ;
         };
-      } else {
-        /* istanbul ignore next */ try {
+      } /* istanbul ignore next */ else {
+        try {
           this.invalidateSoapClient();
           return await this.insertSubDoc(cFicheSubDoc);
         } catch (error) {
@@ -730,8 +718,8 @@ export default class IdylisAPI {
           throw new Error(String(error));
         };
       };
-    } else {
-      /* istanbul ignore next */ try {
+    } /* istanbul ignore next */ else {
+      try {
         this.invalidateSoapClient();
         return await this.insertSubDoc(cFicheSubDoc);
       } catch (error) {
@@ -834,12 +822,10 @@ export default class IdylisAPI {
                 /* istanbul ignore next */
                 throw new Error(String(error));
               };
-            } else {
-              /* istanbul ignore next */
+            } /* istanbul ignore next */ else {
               throw new Error(`The base of a quotation couldn't be written successfully on Idylis.`);
             };
-          } else {
-            /* istanbul ignore next */
+          } /* istanbul ignore next */ else {
             throw new Error(`Either the document for the mainDoc or the subDoc is not a valid XML. Please check and try again.`);
           };
           if (cFicheSubDocConfirmation && cFicheMainDocConfirmation) {
@@ -850,12 +836,10 @@ export default class IdylisAPI {
             finalConfirmation = true;
           }
         };
-      } else {
-        /* istanbul ignore next */
+      } /* istanbul ignore next */ else {
         throw new Error(`The XML for the mainDoc is invalid. Please check and try again.`);
       };
-    } else {
-      /* istanbul ignore next */
+    } /* istanbul ignore next */ else {
       throw new Error(`Either the code, id or password is missing. Please verify your credentials and try again.`);
     };
     return finalConfirmation;
