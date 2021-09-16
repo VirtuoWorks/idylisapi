@@ -91,7 +91,7 @@ describe('The IdyliAPI class', () => {
           0,
           'REFTVADISTINCT',
           [{'COMPTEVENTETVA': `${compteAchatTest}`}],
-          '2',
+          '7',
       );
 
       expect(receivedValue)
@@ -99,8 +99,8 @@ describe('The IdyliAPI class', () => {
     });
 
 
-    test('that should return false if it update was unsuccessful', async () => {
-      const receivedValue = await idylis.updateDocument(
+    test('that should throw an Error if the update was unsuccessful', async () => {
+      await expect(idylis.updateDocument(
           'FA_WRONGTYPE',
           'CODEDEVIS',
           '=',
@@ -111,11 +111,10 @@ describe('The IdyliAPI class', () => {
           0,
           0,
           'REFDEVIS',
-          [{'OBJETDEVIS': objetDevis}],
-      );
-
-      expect(receivedValue)
-          .toBe(false);
+          [{'OBJETDEVIS': 'Failing test...'}],
+      ))
+          .rejects
+          .toThrowError();
     });
   });
 

@@ -16,7 +16,6 @@ import {
   OriginJsonDocument,
   JsonDocumentFicheToUpdate,
   CDATA,
-  FailedUpdate,
 } from './interfaces';
 import {typeguards} from '../typeguards';
 
@@ -317,6 +316,8 @@ export default class IdylisAPI {
    * documents will be present in the response or not (possible choices: 0, 1).
    * @param {number} withCompression this number allows to choose whether
    * the response will be compressed or not (possible choices: 0, 1).
+   * @return {Promise<string | boolean>} this method either returns a boolean
+   * indicating the update failed or the string representing the XML document found.
    */
   public findDocument = async (
       docType: string,
@@ -404,10 +405,10 @@ export default class IdylisAPI {
    * @param {string} refToUpdateValue [OPTIONAL] this represents the value for the reference
    * to use to target the table to update in case the update targets a sub table
    * (like FA_COMPTETVADISTINCT).
-   * @return {Promise<boolean | FailedUpdate>} this method returns either a
-   * boolean indicating whether the update was successful or not, or an object
-   * with two properties: 'result': a boolean indicating that the update failed, and
-   * 'document': the original document containing one or more incorrect key/value pair.
+   * @return {Promise<boolean | OriginJsonDocument>} this method returns either a
+   * boolean indicating whether the update was successful or not, or the original
+   * document if the update was not successful because of an incorrect key/pair inside
+   * the tableUpdateArray argument.
    */
   public async updateDocument(
       docType: string,
@@ -422,7 +423,7 @@ export default class IdylisAPI {
       primaryKey: string,
       tableUpdateArray: IdylisTableField[],
       refToUpdateValue?: string,
-  ): Promise<boolean | FailedUpdate> {
+  ): Promise<boolean | JsonDocumentFicheToUpdate> {
     let originXmlDocument: string | boolean = '';
     let majTableXml: string = '';
     let majTableJson: MajTableJson = {};
@@ -448,7 +449,7 @@ export default class IdylisAPI {
 
     if (!typeguards.isString(originXmlDocument)) {
       /* istanbul ignore next */
-      return false;
+      throw new Error(String(`The document found on Idylis is not of type string, it is of type: ${typeof originXmlDocument}`));
     }
 
     if (Parser.validate(originXmlDocument) && '' !== originXmlDocument) {
@@ -503,7 +504,7 @@ export default class IdylisAPI {
 
           majTableXml = j2xParser.parse(majTableJson);
 
-          if (Parser.validate(majTableXml) && '' !== originXmlDocument) {
+          if (Parser.validate(majTableXml) && '' !== majTableXml) {
             try {
               await this.addSoapClientHeader();
             } catch (error) {
@@ -535,11 +536,9 @@ export default class IdylisAPI {
                 );
               } else if (MajTableResult.MajTableResult.includes('<error><code>-99</code><message>Object reference not set to an instance of an object.</message></error>')) {
                 /* istanbul ignore next */
-                updateConfirmation = false;
-                return {
-                  result: updateConfirmation,
-                  document: jsonDocumentFicheToUpdate,
-                };
+                throw new Error(String(`The update request received the following response from Idylis: ${MajTableResult.MajTableResult}`));
+                // updateConfirmation = false;
+                // return jsonDocumentFicheToUpdate;
               } else {
                 // ***************** START OF VERIFICATION THAT UPDATE HAS BEEN SUCCESSFUL ***************** //
 
@@ -563,7 +562,7 @@ export default class IdylisAPI {
 
                   if (!typeguards.isString(updatedXmlDocument)) {
                     /* istanbul ignore next */
-                    return false;
+                    throw new Error(String(`The document found on Idylis is not of type string, it is of type: ${typeof updatedXmlDocument}`));
                   }
 
                   if (Parser.validate(updatedXmlDocument) && '' !== updatedXmlDocument) {
@@ -591,41 +590,44 @@ export default class IdylisAPI {
                             updateConfirmation = true;
                           } else {
                             /* istanbul ignore next */
-                            updateConfirmation = false;
-                          }
+                            throw new Error(String(`The values do not match, meaning the update was not successful. Value to use for the update: ${originValue}, value after update: ${originValue}`));
+                          };
                         } else {
                           /* istanbul ignore next */
-                          updateConfirmation = false;
+                          throw new Error(String(`The key to check is not of type CDATA, it is of type: ${typeof keyToCheck}`));
                         };
-                      }
+                      } else {
+                        /* istanbul ignore next */
+                        throw new Error(String(`The document to check is not of the right type, it is of type: ${typeof jsonDocumentUpdatedFiche}`));
+                      };
                     });
                   }
                 } else {
                   /* istanbul ignore next */
-                  updateConfirmation = false;
+                  throw new Error(String(`The document found on Idylis is not of type string, it is of type: ${typeof updatedXmlDocument}`));
                 };
 
                 // ***************** END OF VERIFICATION THAT UPDATE HAS BEEN SUCCESSFUL ***************** //
               }
             } catch (error) {
               /* istanbul ignore next */
-              updateConfirmation = false;
+              throw new Error(String(error));
             };
           } else {
             /* istanbul ignore next */
-            updateConfirmation = false;
+            throw new Error(String(`The update XML body is invalid or empty. Update XML body: ${majTableXml}.`));
           };
         } else {
           /* istanbul ignore next */
-          updateConfirmation = false;
+          throw new Error(String(`The primary key value is not a string; it is of type ${typeof primaryKeyValue}`));
         };
       } else {
         /* istanbul ignore next */
-        updateConfirmation = false;
+        throw new Error(String(`The JSON document to use for the update is not of the right type; it is of type ${typeof jsonDocumentFicheToUpdate}`));
       };
     } else {
       /* istanbul ignore next */
-      updateConfirmation = false;
+      throw new Error(String(`The original XML document is either empty or invalid. Original document: ${originXmlDocument}.`));
     };
     return updateConfirmation;
   };
