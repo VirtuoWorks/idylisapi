@@ -123,7 +123,7 @@ describe('The IdyliAPI class', () => {
     let docNumber: string = '';
 
     beforeEach(() => {
-      docNumber = `PITU${Math.ceil(Math.random() * 1000 + Math.random() * 100 + Math.random() * 10)}`;
+      docNumber = `PITU${Math.ceil(Math.random() * 10000 + Math.random() * 1000 + Math.random() * 100 + Math.random() * 10)}`;
     });
 
     test('that should return true if the insertion of the main document was successful', async () => {

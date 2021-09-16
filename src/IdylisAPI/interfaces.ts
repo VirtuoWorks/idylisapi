@@ -81,6 +81,11 @@ export interface OriginJsonDocument {
 export interface JsonDocumentFicheToUpdate {
   [table: string]: CDATA
 }
+
+export interface FailedUpdate {
+  result: boolean,
+  document: JsonDocumentFicheToUpdate
+}
 export interface MajTableJson {
   [fieldValue: string]: MAJTABLEFICHE
 }

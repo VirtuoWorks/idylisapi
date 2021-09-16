@@ -16,6 +16,7 @@ import {
   OriginJsonDocument,
   JsonDocumentFicheToUpdate,
   CDATA,
+  FailedUpdate,
 } from './interfaces';
 import {typeguards} from '../typeguards';
 
@@ -403,10 +404,10 @@ export default class IdylisAPI {
    * @param {string} refToUpdateValue [OPTIONAL] this represents the value for the reference
    * to use to target the table to update in case the update targets a sub table
    * (like FA_COMPTETVADISTINCT).
-   * @return {Promise<boolean | OriginJsonDocument>} this method returns either a
-   * boolean indicating whether the update was successful or not, or the original
-   * document if the update was not successful because of an incorrect key/pair inside
-   * the tableUpdateArray argument.
+   * @return {Promise<boolean | FailedUpdate>} this method returns either a
+   * boolean indicating whether the update was successful or not, or an object
+   * with two properties: 'result': a boolean indicating that the update failed, and
+   * 'document': the original document containing one or more incorrect key/value pair.
    */
   public async updateDocument(
       docType: string,
@@ -421,7 +422,7 @@ export default class IdylisAPI {
       primaryKey: string,
       tableUpdateArray: IdylisTableField[],
       refToUpdateValue?: string,
-  ): Promise<boolean | JsonDocumentFicheToUpdate> {
+  ): Promise<boolean | FailedUpdate> {
     let originXmlDocument: string | boolean = '';
     let majTableXml: string = '';
     let majTableJson: MajTableJson = {};
@@ -535,7 +536,10 @@ export default class IdylisAPI {
               } else if (MajTableResult.MajTableResult.includes('<error><code>-99</code><message>Object reference not set to an instance of an object.</message></error>')) {
                 /* istanbul ignore next */
                 updateConfirmation = false;
-                return jsonDocumentFicheToUpdate;
+                return {
+                  result: updateConfirmation,
+                  document: jsonDocumentFicheToUpdate,
+                };
               } else {
                 // ***************** START OF VERIFICATION THAT UPDATE HAS BEEN SUCCESSFUL ***************** //
 
