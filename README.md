@@ -17,9 +17,11 @@ _**Please note that basic knowledge of the way Idylis functions is necessary to 
 ## Idylisapi functionalities
 
 -   **Get** an authorization token from Idylis
--   **Find** a document on Idylis
--   **Insert** a document on Idylis
--   **Update** a document on Idylis
+-   **Get** a SOAP client from Idylis
+-   **Find** a document (referred to as 'table' by Idylis) on Idylis
+-   **Insert** a document (referred to as 'table' by Idylis) on Idylis
+-   **Update** a document (referred to as 'table' by Idylis) (or sub document (referred to as 'table' by Idylis)) on Idylis
+-   **Delete** a document (referred to as 'table' by Idylis) on Idylis
 
 ## Installing idylisapi
 
@@ -28,7 +30,6 @@ To add idylisapi to your project, just type the following command at the root of
 ```bash
 npm install @virtuoworks/idylisapi
 ```
-
 
 
 ## Creating the object idylisapi
@@ -69,8 +70,38 @@ const idylis = idylisapi(
 );
 ```
 
-FOllow this link to get the [WSDL](https://exe.idylis.com//Idylisapi.asmx?WSDL).
-Follow this link to get the [documentation](https://docs.idylis.com/api/).
+**Follow this link to get the [WSDL](https://exe.idylis.com//Idylisapi.asmx?WSDL).**
+**Follow this link to get the [documentation](https://docs.idylis.com/api/).**
+
+
+## Getting SOAP client from Idylis
+
+In order to obtain a valid SOAP Client for Idylis, required to make API calls to Idylis API, we are going to use the method ```getSoapClient()```. This method does not require any argument, and will return a valid SOAP Client instance base on Idylis' [WSDL](https://exe.idylis.com//Idylisapi.asmx?WSDL) that can be used to make API calls to Idylis. 
+
+_Please note that you do not need to use this method before using other methods, such as ```insertDocument()``` or ```findDocument()```, for these methods already call ```getSoapClient()```._
+
+```javascript
+// ESM
+let idylisSOAPClient = '';
+
+try {
+  idylisSOAPClient = await idylis.getAuthToken();
+  console.log('SOAP Client object: ', idylisSOAPClient);
+} catch (error) {
+    console.error(error.message);
+}
+
+// CJS
+idylis.getAuthToken()
+      .then((soapClient) => {
+        idylisSOAPClient = soapClient;
+        console.log('SOAP Client object: ', idylisSOAPClient);
+      })
+      .catch((error) => {
+        console.log('Woops... could not get a SOAP Client object.');
+      });
+```
+
 
 ## Getting an authorization token from Idylis
 
@@ -99,6 +130,7 @@ idylis.getAuthToken()
         console.log('Woops... could not get a new token.');
       });
 ```
+
 
 ## Finding a document on Idylis
 
@@ -251,7 +283,7 @@ idylis.updateDocument.updateDocument(
 
 ## Updating a document on Idylis
 
-The idylisapi object also has a method called ```udpateDocument()``` which allows to find a given document on Idylis. To do so, ```udpateDocument()``` requires certain arguments to function. The arguments are as follow:
+The idylisapi object also has a method called ```udpateDocument()``` which allows to update one or many document(s) on Idylis. To do so, ```udpateDocument()``` requires certain arguments to function. The arguments are as follow:
 
 | Argument | Explanation |
 | -------- | ----------- |
@@ -326,6 +358,59 @@ idylis.updateDocument(
   )
   .then((updateResult) => {
     console.log('Great! The update was successful!')
+  })
+  .catch(error) {
+    console.error(error.message);
+  };
+
+```
+
+## Deleting a document from Idylis
+
+The idylisapi object also has a method called ```deleteDocument()``` which allows to delete one given document on Idylis. To do so, ```deleteDocument()``` requires certain arguments to function. The arguments are as follow:
+
+| Argument | Explanation |
+| -------- | ----------- |
+| **targetTable** | This represents the type of document to which the table to delete relates to (e.g.: 'FA_DEVIS', 'FA_BL', etc). |
+| **tableCode** | This is the criteria used to first search out the document to delete in order to find the value of its primary key. |
+| **tableToDelete** | This represents the value of the table to delete with this method (e.g.: 'PI210597', 'DN967425', etc). |
+| **primaryKey** | The primary key necessary to delete any table (example: "REFBL" for delivery notes or "REFDEVIS" for quotations). |
+
+This method returns a boolean that will give confirmation or denial about whether the deletion was successful or not.
+**Please make sure every argument passed to a method is a string, unless clearly stated as requiring a number or an object! If you need to use a variable, use a template literal**
+
+```javascript
+// ESM
+let deletionResult = false;
+
+try {
+  deletionResult = await idylis.deleteDocument(
+    'FA_DEVIS',
+    'CODEDEVIS',
+    'PI210839',
+    'REFDEVIS',
+  );
+} catch (error) {
+  console.error(error.message);
+};
+
+if (deletionResult) {
+  console.log('The deletion was successful!');
+} else {
+  console.error('Hmmm... the document could not be deleted.');
+};
+
+// CJS
+let deletionResult = false;
+
+idylis.deleteDocument(
+    'FA_DEVIS',
+    'CODEDEVIS',
+    'PI210839',
+    'REFDEVIS',
+  )
+  .then((deletionResult) => {
+    console.log('Great! The deletion was successful!')
   })
   .catch(error) {
     console.error(error.message);

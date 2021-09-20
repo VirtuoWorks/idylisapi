@@ -25,6 +25,10 @@ export interface MajTableResult {
   MajTableResult: string,
 }
 
+export interface SuppresionTableResult {
+  SuppresionTableResult: string,
+}
+
 export interface IdylisTableField {
   [fieldValue: string]: string
 }

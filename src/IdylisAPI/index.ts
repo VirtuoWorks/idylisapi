@@ -16,6 +16,7 @@ import {
   OriginJsonDocument,
   JsonDocumentFicheToUpdate,
   CDATA,
+  SuppresionTableResult,
 } from './interfaces';
 import {typeguards} from '../typeguards';
 
@@ -147,7 +148,7 @@ export default class IdylisAPI {
   private apiTokenIsNotEmpty(): boolean {
     if ('' !== this.token) {
       this.tokenIsValid = true;
-    } else {
+    } /* istanbul ignore next */ else {
       /* istanbul ignore next */
       this.tokenIsValid = false;
     };
@@ -282,7 +283,7 @@ export default class IdylisAPI {
       /* istanbul ignore next */
       throw new Error(String(error));
     }
-    if (!this.tokenIsValid) {
+    /* istanbul ignore next */ if (!this.tokenIsValid) {
       /* istanbul ignore next */
       return;
     }
@@ -338,6 +339,7 @@ export default class IdylisAPI {
       /* istanbul ignore next */
       throw new Error(String(error));
     };
+
     try {
       const [LireTableResult]: [LireTableResult] = await this.client.LireTableAsync(
           {
@@ -447,9 +449,8 @@ export default class IdylisAPI {
       throw new Error(String(error));
     };
 
-    if (!typeguards.isString(originXmlDocument)) {
-      /* istanbul ignore next */
-      throw new Error(String(`The document found on Idylis is not of type string, it is of type: ${typeof originXmlDocument}`));
+    /* istanbul ignore next */ if (!typeguards.isString(originXmlDocument)) {
+      return false;
     }
 
     if (Parser.validate(originXmlDocument) && '' !== originXmlDocument) {
@@ -490,16 +491,16 @@ export default class IdylisAPI {
                   jsonDocumentFicheToUpdate[String(keyToUpdate)] = {__cdata: String(updatedValue)};
                 } else {
                   /* istanbul ignore next */
-                  throw new Error(`Cannot update this particular table: ${JSON.stringify(keyToCheck)} because both the original value and the updated value are the same.`);
-                }
+                  console.error(`Cannot update this particular table: ${JSON.stringify(keyToCheck)} because both the original value and the updated value are the same.`);
+                };
               } else {
                 /* istanbul ignore next */
-                throw new Error(`Cannot update because the provided key (${JSON.stringify(keyToCheck)}) is either not a cdata or its value is empty.`);
-              }
+                console.error(`Cannot update because the provided key (${JSON.stringify(keyToCheck)}) is either not a cdata or its value is empty.`);
+              };
             } else {
               /* istanbul ignore next */
-              throw new Error('The document to update is undefined. Cannot proceed.');
-            }
+              console.error('The document to update is undefined. Cannot proceed.');
+            };
           });
 
           majTableXml = j2xParser.parse(majTableJson);
@@ -536,9 +537,7 @@ export default class IdylisAPI {
                 );
               } else if (MajTableResult.MajTableResult.includes('<error><code>-99</code><message>Object reference not set to an instance of an object.</message></error>')) {
                 /* istanbul ignore next */
-                throw new Error(String(`The update request received the following response from Idylis: ${MajTableResult.MajTableResult}`));
-                // updateConfirmation = false;
-                // return jsonDocumentFicheToUpdate;
+                console.error(`The update was not successful; Idylis responded with the following message: ${MajTableResult.MajTableResult}`);
               } else {
                 // ***************** START OF VERIFICATION THAT UPDATE HAS BEEN SUCCESSFUL ***************** //
 
@@ -562,7 +561,8 @@ export default class IdylisAPI {
 
                   if (!typeguards.isString(updatedXmlDocument)) {
                     /* istanbul ignore next */
-                    throw new Error(String(`The document found on Idylis is not of type string, it is of type: ${typeof updatedXmlDocument}`));
+                    console.error(`The document found on Idylis is not of type string, it is of type: ${typeof updatedXmlDocument}`);
+                    return false;
                   }
 
                   if (Parser.validate(updatedXmlDocument) && '' !== updatedXmlDocument) {
@@ -590,21 +590,21 @@ export default class IdylisAPI {
                             updateConfirmation = true;
                           } else {
                             /* istanbul ignore next */
-                            throw new Error(String(`The values do not match, meaning the update was not successful. Value to use for the update: ${originValue}, value after update: ${originValue}`));
+                            console.error(`The values do not match, meaning the update was not successful. Value to use for the update: ${originValue}, value after update: ${originValue}`);
                           };
                         } else {
                           /* istanbul ignore next */
-                          throw new Error(String(`The key to check is not of type CDATA, it is of type: ${typeof keyToCheck}`));
+                          console.error(`The key to check is not of type CDATA, it is of type: ${typeof keyToCheck}`);
                         };
                       } else {
                         /* istanbul ignore next */
-                        throw new Error(String(`The document to check is not of the right type, it is of type: ${typeof jsonDocumentUpdatedFiche}`));
+                        console.error(`The document to check is not of the right type, it is of type: ${typeof jsonDocumentUpdatedFiche}`);
                       };
                     });
                   }
                 } else {
                   /* istanbul ignore next */
-                  throw new Error(String(`The document found on Idylis is not of type string, it is of type: ${typeof updatedXmlDocument}`));
+                  console.error(`The update was not successful; Idylis responded with the following message: ${MajTableResult.MajTableResult}`);
                 };
 
                 // ***************** END OF VERIFICATION THAT UPDATE HAS BEEN SUCCESSFUL ***************** //
@@ -615,19 +615,19 @@ export default class IdylisAPI {
             };
           } else {
             /* istanbul ignore next */
-            throw new Error(String(`The update XML body is invalid or empty. Update XML body: ${majTableXml}.`));
+            console.error(`The update XML body is invalid or empty. Update XML body: ${majTableXml}.`);
           };
         } else {
           /* istanbul ignore next */
-          throw new Error(String(`The primary key value is not a string; it is of type ${typeof primaryKeyValue}`));
+          console.error(`The primary key value is not a string; it is of type ${typeof primaryKeyValue}`);
         };
       } else {
         /* istanbul ignore next */
-        throw new Error(String(`The JSON document to use for the update is not of the right type; it is of type ${typeof jsonDocumentFicheToUpdate}`));
+        console.error(`The JSON document to use for the update is not of the right type; it is of type ${typeof jsonDocumentFicheToUpdate}`);
       };
     } else {
       /* istanbul ignore next */
-      throw new Error(String(`The original XML document is either empty or invalid. Original document: ${originXmlDocument}.`));
+      console.error(`The original XML document is either empty or invalid. Original document: ${originXmlDocument}.`);
     };
     return updateConfirmation;
   };
@@ -801,13 +801,13 @@ export default class IdylisAPI {
         const valueToCreate: string[] = Object.values(table);
         if (String(keyToCreate) !== '') {
           cFicheMainDoc[mainDocType].FICHE[String(keyToCreate)] =
-              `<![CDATA[${Object.values({__cdata: String(valueToCreate)})}]]]]><![CDATA[>`;
+            `<![CDATA[${Object.values({__cdata: String(valueToCreate)})}]]]]><![CDATA[>`;
         }
       });
 
       cFicheMainDocXml = j2xParser.parse(cFicheMainDoc);
 
-      if (Parser.validate(cFicheMainDocXml) &&'' !== cFicheMainDocXml) {
+      if (Parser.validate(cFicheMainDocXml) && '' !== cFicheMainDocXml) {
         try {
           cFicheMainDocConfirmation = await this.insertMainDoc(cFicheMainDocXml);
         } catch (error) {
@@ -828,7 +828,7 @@ export default class IdylisAPI {
             const valueToCreate: string[] = Object.values(table);
             if (String(keyToCreate) !== '') {
               cFicheSubDocJson[subDocType].FICHE[String(keyToCreate)] =
-            `<![CDATA[${Object.values({__cdata: String(valueToCreate)})}]]]]><![CDATA[>`;
+                `<![CDATA[${Object.values({__cdata: String(valueToCreate)})}]]]]><![CDATA[>`;
             }
           });
 
@@ -844,11 +844,11 @@ export default class IdylisAPI {
               };
             } else {
               /* istanbul ignore next */
-              throw new Error(`The base of a quotation couldn't be written successfully on Idylis.`);
+              console.error(`The base of a quotation couldn't be written successfully on Idylis.`);
             };
           } else {
             /* istanbul ignore next */
-            throw new Error(`Either the document for the mainDoc or the subDoc is not a valid XML. Please check and try again.`);
+            console.error(`Either the document for the mainDoc or the subDoc is not a valid XML. Please check and try again.`);
           };
           if (cFicheSubDocConfirmation && cFicheMainDocConfirmation) {
             finalConfirmation = true;
@@ -860,12 +860,128 @@ export default class IdylisAPI {
         };
       } else {
         /* istanbul ignore next */
-        throw new Error(`The XML for the mainDoc is invalid. Please check and try again.`);
+        console.error(`The XML for the mainDoc is invalid. Please check and try again.`);
       };
     } else {
       /* istanbul ignore next */
-      throw new Error(`Either the code, id or password is missing. Please verify your credentials and try again.`);
+      console.error(`Either the code, id or password is missing. Please verify your credentials and try again.`);
     };
     return finalConfirmation;
   };
+
+  /**
+   * @param {string} targetTable this represents the type of document to which
+   * the table to delete relates to (e.g.: 'FA_DEVIS', 'FA_BL', etc).
+   * @param {string} tableCode this is the criteria used to first search
+   * out the document to delete in order to find the value of its primary key.
+   * Please note it HAS to be a CODE<something> (e.g.: 'CODEDEVIS', 'CODEBL', etc).
+   * @param {string} tableToDelete this represents the value of the table to
+   * delete with this method (e.g.: 'PI210597', 'DN967425', etc).
+   * @param {string} primaryKey this represents the primary key necessary to update
+   * any table. Generally starts with 'REF' (e.g.: 'REFBL', 'REFDEVIS').
+   * @return {Promise<boolean>} this method either returns a boolean
+   * indicating the update failed or the string representing the XML document found.
+   */
+  public async deleteDocument(
+      targetTable: string,
+      tableCode: string,
+      tableToDelete: string,
+      primaryKey: string,
+  ): Promise<boolean> {
+    let deleteConfirmation: boolean = false;
+    let originXmlDocument: string | boolean = '';
+
+    try {
+      originXmlDocument = await this.findDocument(
+          targetTable,
+          tableCode,
+          '=',
+          tableToDelete,
+          tableCode,
+          'ASC',
+          0,
+          0,
+          0,
+      );
+    } catch (error) {
+      /* istanbul ignore next */
+      throw new Error(String(error));
+    };
+
+    if (typeguards.isString(originXmlDocument)) {
+      if (Parser.validate(originXmlDocument) && '' !== originXmlDocument) {
+        const originJsonDocument: OriginJsonDocument = Parser.parse(originXmlDocument, options);
+        const jsonDocumentFicheToUpdate: JsonDocumentFicheToUpdate | JsonDocumentFicheToUpdate[] = originJsonDocument[targetTable]?.FICHE;
+        let primaryKeyValue: string = '';
+
+        if (!Array.isArray(jsonDocumentFicheToUpdate)) {
+          primaryKeyValue = jsonDocumentFicheToUpdate[primaryKey].__cdata;
+
+          if (typeguards.isPrimaryKeyValue(primaryKeyValue)) {
+            try {
+              await this.addSoapClientHeader();
+            } catch (error) {
+              /* istanbul ignore next */
+              throw new Error(String(error));
+            };
+
+            try {
+              const [SuppresionTableResult]: [SuppresionTableResult] = await this.client.SuppresionTableAsync(
+                  {
+                    '_nomtable': `${targetTable}`,
+                    '_clevalue': `${primaryKeyValue}`,
+                  },
+                  {timeout: 30000},
+              );
+
+              /* istanbul ignore next */ if (
+                SuppresionTableResult.SuppresionTableResult.includes('<error><code>25</code></error>')) {
+              /* istanbul ignore next */
+                this
+                    .invalidateSoapClient()
+                    .invalidateApiToken();
+                /* istanbul ignore next */
+                console.error(`The SessionID is invalid, please check your credentials and try again.`);
+                deleteConfirmation = false;
+              } else if (SuppresionTableResult.SuppresionTableResult.includes('<error><code>-99</code><message>Object reference not set to an instance of an object.</message></error>')) {
+              /* istanbul ignore next */
+                console.error(`The deletion could not go through; Idylis responded with the following message: ${SuppresionTableResult.SuppresionTableResult}`);
+                deleteConfirmation = false;
+              } else {
+                if (
+                  SuppresionTableResult.SuppresionTableResult.includes('<success><message>ok</message></success>')
+                ) {
+                  deleteConfirmation = true;
+                } else {
+                /* istanbul ignore next */
+                  console.error(`The deletion was not successful; Idylis responded with the following message: ${SuppresionTableResult.SuppresionTableResult}`);
+                  deleteConfirmation = false;
+                };
+              };
+            } catch (error) {
+              throw new Error(String(`The deletion didn't work because of the following ${error}`));
+            };
+          } else {
+          /* istanbul ignore next */
+            console.error(`The primary key value is not a string; it is of type ${typeof primaryKeyValue}`);
+            deleteConfirmation = false;
+          };
+        } else {
+          /* istanbul ignore next */
+          console.error(`This table's FICHE is an array, which is unusable with this method. This method can only delete main documents, not sub documents.`);
+          deleteConfirmation = false;
+        };
+      } else {
+        /* istanbul ignore next */
+        console.error(`The original XML document is either empty or invalid. Original document: ${originXmlDocument}.`);
+        deleteConfirmation = false;
+      };
+    } else {
+      /* istanbul ignore next */
+      console.error(`The document found on Idylis is not of type string, it is of type: ${typeof originXmlDocument}`);
+      deleteConfirmation = false;
+    }
+    return deleteConfirmation;
+  };
 };
+

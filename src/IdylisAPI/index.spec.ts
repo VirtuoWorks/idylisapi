@@ -1,6 +1,7 @@
 /* eslint-disable max-len */
 import soap from 'soap';
 import IdylisAPI from '.';
+import {JsonDocumentFicheToUpdate} from './interfaces';
 
 
 let idylis: IdylisAPI = new IdylisAPI(
@@ -10,6 +11,11 @@ let idylis: IdylisAPI = new IdylisAPI(
     String(process.env.MOTDEPASSE) || '',
     'https://www.idylis.com/Idylisapi.asmx/',
 );
+
+let firstDocNumber: string = '';
+let secondDocNumber: string = '';
+let firstDocToDelete: string = '';
+let secondDocToDelete: string = '';
 
 describe('The IdyliAPI class', () => {
   test('should allow us to get a new instance of IdylisAPI', () => {
@@ -99,8 +105,8 @@ describe('The IdyliAPI class', () => {
     });
 
 
-    test('that should throw an Error if the update was unsuccessful', async () => {
-      await expect(idylis.updateDocument(
+    test('that should return false if the update was unsuccessful', async () => {
+      const updateResult: boolean | JsonDocumentFicheToUpdate = await idylis.updateDocument(
           'FA_WRONGTYPE',
           'CODEDEVIS',
           '=',
@@ -112,26 +118,21 @@ describe('The IdyliAPI class', () => {
           0,
           'REFDEVIS',
           [{'OBJETDEVIS': 'Failing test...'}],
-      ))
-          .rejects
-          .toThrowError();
+      );
+      expect(updateResult)
+          .toBe(false);
     });
   });
 
   describe('has a public insertDocument method', () => {
-    let docNumber: string = '';
-
-    beforeEach(() => {
-      docNumber = `PITU${Math.ceil(Math.random() * 10000 + Math.random() * 1000 + Math.random() * 100 + Math.random() * 10)}`;
-    });
-
     test('that should return true if the insertion of the main document was successful', async () => {
+      firstDocNumber = `PITU${Math.ceil(Math.random() * 10000 + Math.random() * 1000 + Math.random() * 100 + Math.random() * 10)}`;
       let insertDocumentConfirmation: boolean = false;
       insertDocumentConfirmation = await idylis.insertDocument(
           'FA_DEVIS',
           [
             {'CODECLIENT': 'TESTS01'},
-            {'CODEDEVIS': docNumber},
+            {'CODEDEVIS': firstDocNumber},
             {'DATECREA': '23/08/2021'},
             {'MODELEDOC': '133'},
             {'COMP_COUNTRY': 'France FR'},
@@ -149,12 +150,13 @@ describe('The IdyliAPI class', () => {
     });
 
     test('that should return true if both the insertions were successful', async () => {
+      secondDocNumber = `PITU${Math.ceil(Math.random() * 10000 + Math.random() * 1000 + Math.random() * 100 + Math.random() * 10)}`;
       let insertDocumentConfirmation: boolean = false;
       insertDocumentConfirmation = await idylis.insertDocument(
           'FA_DEVIS',
           [
             {'CODECLIENT': 'TESTS01'},
-            {'CODEDEVIS': docNumber},
+            {'CODEDEVIS': secondDocNumber},
             {'DATECREA': '23/08/2021'},
             {'MODELEDOC': '133'},
             {'TOTHT': '100.00'},
@@ -190,7 +192,7 @@ describe('The IdyliAPI class', () => {
           [
             {'CODEARTICLE': '1TWL050'},
             {'CODECATALOGUE': 'CUST'},
-            {'CODEDEVIS': docNumber},
+            {'CODEDEVIS': secondDocNumber},
             {'CODETVA': '1'},
             {'DESCRIPTIF': 'Tiwal 3 et voile arisable 7/5.20 m² sans graphisme'},
             {'NOMBRECOLIS': '0'},
@@ -204,6 +206,52 @@ describe('The IdyliAPI class', () => {
       );
       expect(insertDocumentConfirmation)
           .toBe(true);
+    });
+  });
+
+  describe('has a public deleteDocument method', () => {
+    beforeAll(() => {
+      firstDocToDelete = firstDocNumber;
+      secondDocToDelete = secondDocNumber;
+    });
+
+    test('that should return true if the deletion was successful', async () => {
+      let firstDeletion: boolean = false;
+      let secondDeletion: boolean = false;
+      let finalConfirmation: boolean = false;
+
+      firstDeletion = await idylis.deleteDocument(
+          'FA_DEVIS',
+          'CODEDEVIS',
+          firstDocToDelete,
+          'REFDEVIS',
+      );
+
+      secondDeletion = await idylis.deleteDocument(
+          'FA_DEVIS',
+          'CODEDEVIS',
+          secondDocToDelete,
+          'REFDEVIS',
+      );
+
+      if (firstDeletion && secondDeletion) {
+        finalConfirmation = true;
+      }
+
+      expect(finalConfirmation)
+          .toBe(true);
+    });
+
+    test('that should return false if the deletion was unsuccessful', async () => {
+      let deletionConfirmation: boolean = false;
+      deletionConfirmation = await idylis.deleteDocument(
+          'FA_DEVIS',
+          'CODEDEVIS',
+          'FAKEID',
+          'REFDEVIS',
+      );
+      expect(deletionConfirmation)
+          .toBe(false);
     });
   });
 
