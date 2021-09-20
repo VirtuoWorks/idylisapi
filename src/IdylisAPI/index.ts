@@ -404,9 +404,11 @@ export default class IdylisAPI {
    * objects of pair key value representing the table to be updated as the key and
    * the value to update as the value (e.g.: [{'ADRESSE1': 'My new address'},
    * {'NOMCONTACT': 'John Doe'}]).
-   * @param {string} refToUpdateValue [OPTIONAL] this represents the value for the reference
-   * to use to target the table to update in case the update targets a sub table
-   * (like FA_COMPTETVADISTINCT).
+   * @param {string} refLocatorKey [OPTIONAL] this represents the key to use to find
+   * the primary key to target the table to update a given sub table.
+   * @param {string} refLocatorValue [OPTIONAL but REQUIRED with refLocatorKey] this
+   * represents the value to use to use with the refLocatorKey in order to find the
+   * primary key to update a given sub table (e.g.: 'FR' if the refLocatorKey is 'CODETVA');
    * @return {Promise<boolean | OriginJsonDocument>} this method returns either a
    * boolean indicating whether the update was successful or not, or the original
    * document if the update was not successful because of an incorrect key/pair inside
@@ -424,7 +426,8 @@ export default class IdylisAPI {
       withCompression: number,
       primaryKey: string,
       tableUpdateArray: IdylisTableField[],
-      refToUpdateValue?: string,
+      refLocatorKey?: string,
+      refLocatorValue?: string,
   ): Promise<boolean | JsonDocumentFicheToUpdate> {
     let originXmlDocument: string | boolean = '';
     let majTableXml: string = '';
@@ -457,13 +460,19 @@ export default class IdylisAPI {
       const originJsonDocument: OriginJsonDocument = Parser.parse(originXmlDocument, options);
       let jsonDocumentFicheToUpdate: JsonDocumentFicheToUpdate | JsonDocumentFicheToUpdate[] = originJsonDocument[docType]?.FICHE;
 
-      if (undefined !== refToUpdateValue) {
-        if (Array.isArray(jsonDocumentFicheToUpdate)) {
+      if (Array.isArray(jsonDocumentFicheToUpdate)) {
+        if (
+          undefined !== refLocatorKey &&
+          undefined !== refLocatorValue
+        ) {
           jsonDocumentFicheToUpdate.forEach((fiche: JsonDocumentFicheToUpdate) => {
-            if (fiche[primaryKey].__cdata === refToUpdateValue) {
+            if (fiche[refLocatorKey].__cdata === refLocatorValue) {
               jsonDocumentFicheToUpdate = fiche;
             }
           });
+        } else {
+          console.error(`In order to update this table, you need to provide a refLocatorKey and refLocatorValue.`);
+          return false;
         }
       }
 
@@ -478,6 +487,7 @@ export default class IdylisAPI {
               },
             },
           };
+
           tableUpdateArray.forEach((table: IdylisTableField) => {
             if (typeguards.isJsonDocumentFiche(jsonDocumentFicheToUpdate)) {
               const keyToCheck: CDATA = jsonDocumentFicheToUpdate[String(Object.keys(table))];
@@ -534,6 +544,8 @@ export default class IdylisAPI {
                     withCompression,
                     primaryKey,
                     tableUpdateArray,
+                    refLocatorKey,
+                    refLocatorValue,
                 );
               } else if (MajTableResult.MajTableResult.includes('<error><code>-99</code><message>Object reference not set to an instance of an object.</message></error>')) {
                 /* istanbul ignore next */
@@ -569,13 +581,19 @@ export default class IdylisAPI {
                     const updatedJsonDocument: OriginJsonDocument = Parser.parse(updatedXmlDocument, options);
                     let jsonDocumentUpdatedFiche: JsonDocumentFicheToUpdate | JsonDocumentFicheToUpdate[] = updatedJsonDocument[docType]?.FICHE;
 
-                    if (undefined !== refToUpdateValue) {
-                      if (Array.isArray(jsonDocumentUpdatedFiche)) {
+                    if (Array.isArray(jsonDocumentUpdatedFiche)) {
+                      if (
+                        undefined !== refLocatorKey &&
+                        undefined !== refLocatorValue
+                      ) {
                         jsonDocumentUpdatedFiche.forEach((fiche: JsonDocumentFicheToUpdate) => {
-                          if (fiche[primaryKey].__cdata === refToUpdateValue) {
+                          if (fiche[refLocatorKey].__cdata === refLocatorValue) {
                             jsonDocumentUpdatedFiche = fiche;
                           }
                         });
+                      } else {
+                        console.error(`In order to update this table, you need to provide a refLocatorKey and refLocatorValue.`);
+                        return false;
                       }
                     }
 

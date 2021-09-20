@@ -96,14 +96,33 @@ describe('The IdyliAPI class', () => {
           0,
           0,
           'REFTVADISTINCT',
-          [{'COMPTEVENTETVA': `${compteAchatTest}`}],
-          '7',
+          [{'COMPTEACHATTVA': `${compteAchatTest}`}],
+          'CODETVA',
+          'EE',
       );
 
       expect(receivedValue)
           .toBe(true);
     });
 
+    test('that should return false if the update was unsuccessful because of missing parameters to update a sub table', async () => {
+      const compteAchatTest: number = Math.ceil(Math.random() * 10000 + Math.random() * 1000 + Math.random() * 100 + Math.random() * 10);
+      const updateResult: boolean | JsonDocumentFicheToUpdate = await idylis.updateDocument(
+          'FA_COMPTETVADISTINCT',
+          'CODEARTICLE',
+          '=',
+          '1ARM01',
+          'CODEARTICLE',
+          'ASC',
+          0,
+          0,
+          0,
+          'REFTVADISTINCT',
+          [{'COMPTEACHATTVA': `${compteAchatTest}`}],
+      );
+      expect(updateResult)
+          .toBe(false);
+    });
 
     test('that should return false if the update was unsuccessful', async () => {
       const updateResult: boolean | JsonDocumentFicheToUpdate = await idylis.updateDocument(
