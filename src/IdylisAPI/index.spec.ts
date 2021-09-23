@@ -16,6 +16,7 @@ let firstDocNumber: string = '';
 let secondDocNumber: string = '';
 let firstDocToDelete: string = '';
 let secondDocToDelete: string = '';
+let foundDocument: string | boolean = '';
 
 describe('The IdyliAPI class', () => {
   test('should allow us to get a new instance of IdylisAPI', () => {
@@ -25,12 +26,12 @@ describe('The IdyliAPI class', () => {
 
   describe('has a public findDocument method', () => {
     test('that should return a string representing the document seeked', async () => {
-      const foundDocument: string | boolean = await idylis.findDocument(
-          'FA_BL',
-          'CODEBL',
+      foundDocument = await idylis.findDocument(
+          'FA_DEVIS',
+          'CODEDEVIS',
           '=',
-          'DN2106102',
-          'CODEBL',
+          'PIWC32387',
+          'CODEDEVIS',
           'ASC',
           0,
           0,
@@ -65,19 +66,17 @@ describe('The IdyliAPI class', () => {
     });
 
     test('that should return true if a table update was successful', async () => {
-      const receivedValue = await idylis.updateDocument(
-          'FA_DEVIS',
-          'CODEDEVIS',
-          '=',
-          'PIWC32387',
-          'CODEDEVIS',
-          'ASC',
-          0,
-          0,
-          0,
-          'REFDEVIS',
-          [{'OBJETDEVIS': objetDevis}],
-      );
+      let receivedValue: boolean | JsonDocumentFicheToUpdate= false;
+
+      if ('string' === typeof foundDocument) {
+        receivedValue = await idylis.updateDocument(
+            'FA_DEVIS',
+            'CODEDEVIS',
+            'REFDEVIS',
+            [{'OBJETDEVIS': objetDevis}],
+            foundDocument,
+        );
+      }
 
       expect(receivedValue)
           .toBe(true);
@@ -85,7 +84,9 @@ describe('The IdyliAPI class', () => {
 
     test('that should return true if a sub table update was successful', async () => {
       const compteAchatTest: number = Math.ceil(Math.random() * 10000 + Math.random() * 1000 + Math.random() * 100 + Math.random() * 10);
-      const receivedValue = await idylis.updateDocument(
+      let receivedValue: boolean | JsonDocumentFicheToUpdate= false;
+
+      foundDocument = await idylis.findDocument(
           'FA_COMPTETVADISTINCT',
           'CODEARTICLE',
           '=',
@@ -95,11 +96,19 @@ describe('The IdyliAPI class', () => {
           0,
           0,
           0,
-          'REFTVADISTINCT',
-          [{'COMPTEACHATTVA': `${compteAchatTest}`}],
-          'CODETVA',
-          'EE',
       );
+
+      if ('string' === typeof foundDocument) {
+        receivedValue = await idylis.updateDocument(
+            'FA_COMPTETVADISTINCT',
+            'CODEARTICLE',
+            'REFTVADISTINCT',
+            [{'COMPTEACHATTVA': `${compteAchatTest}`}],
+            foundDocument,
+            'CODETVA',
+            'EE',
+        );
+      }
 
       expect(receivedValue)
           .toBe(true);
@@ -107,37 +116,33 @@ describe('The IdyliAPI class', () => {
 
     test('that should return false if the update was unsuccessful because of missing parameters to update a sub table', async () => {
       const compteAchatTest: number = Math.ceil(Math.random() * 10000 + Math.random() * 1000 + Math.random() * 100 + Math.random() * 10);
-      const updateResult: boolean | JsonDocumentFicheToUpdate = await idylis.updateDocument(
-          'FA_COMPTETVADISTINCT',
-          'CODEARTICLE',
-          '=',
-          '1ARM01',
-          'CODEARTICLE',
-          'ASC',
-          0,
-          0,
-          0,
-          'REFTVADISTINCT',
-          [{'COMPTEACHATTVA': `${compteAchatTest}`}],
-      );
+      let updateResult: boolean | JsonDocumentFicheToUpdate = false;
+
+      if ('string' === typeof foundDocument) {
+        updateResult = await idylis.updateDocument(
+            'FA_COMPTETVADISTINCT',
+            'CODEARTICLE',
+            'REFTVADISTINCT',
+            [{'COMPTEACHATTVA': `${compteAchatTest}`}],
+            foundDocument,
+        );
+      }
       expect(updateResult)
           .toBe(false);
     });
 
     test('that should return false if the update was unsuccessful', async () => {
-      const updateResult: boolean | JsonDocumentFicheToUpdate = await idylis.updateDocument(
-          'FA_WRONGTYPE',
-          'CODEDEVIS',
-          '=',
-          'PIWC32387',
-          'CODEDEVIS',
-          'ASC',
-          0,
-          0,
-          0,
-          'REFDEVIS',
-          [{'OBJETDEVIS': 'Failing test...'}],
-      );
+      let updateResult: boolean | JsonDocumentFicheToUpdate = false;
+
+      if ('string' === typeof foundDocument) {
+        updateResult = await idylis.updateDocument(
+            'FA_WRONGTYPE',
+            'CODEDEVIS',
+            'REFDEVIS',
+            [{'OBJETDEVIS': 'Failing test...'}],
+            foundDocument,
+        );
+      }
       expect(updateResult)
           .toBe(false);
     });

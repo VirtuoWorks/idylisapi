@@ -289,15 +289,11 @@ The idylisapi object also has a method called ```udpateDocument()``` which allow
 | -------- | ----------- |
 | **docType** | The type of document that will be retrieved from Idylis API (example: "FA_DEVIS", "FA_BL", etc). |
 | **searchCriteria** | The criteria that will be used to retrieve one or more document(s) from Idylis API (example: "DATECREATION", "CODEDEVIS", etc). |
-| **operator** | The assignment operator used for the search **(possible choices: "=", ">=", "<=", "<", ">")**. |
-| **criteriaValue** | The value that will be used along with the search criteria (example: "PI2105033", "03/12/2020", etc. Please note that date format must be dd/MM/yyyy). |
-| **orderingType** | The criteria with which the documents will be ordered in the response (example: "DATECREATION", "CODEDEVIS", etc). |
-| **orderingValue** | The value that will be used along with the ordering type **(possible choices: "ASC", "DESC")**. |
-| **subTable** | Allows to choose whether sub tables will be present in the response or not **(possible choices: 0, 1)**. |
-| **enclosedDoc** | Allows to choose whether enclosed documents will be present in the response or not **(possible choices: 0, 1)**. |
-| **withCompression** | Allows to choose whether the response will be compressed or not **(possible choices: 0, 1)**. |
 | **primaryKey** | The primary key necessary to update any table (example: "REFBL" for delivery notes or "REFDEVIS" for quotations). |
 | **tableUpdateArray** | An array containing objects of pair key value representing the table to be updated as the key and the value to be updated as the value. |
+| **documentToUpdateXml** | This represents a document to update, in XML format, returned by the findDocument method. |
+| **refLocatorKey** | **OPTIONAL** This represents the key to use to find the primary key to target the table to update a given sub table. Always starts with CODE (example: 'CODEDEVIS', 'CODEBL', 'CODEARTICLE' etc). |
+| **refLocatorValue** | **OPTIONAL but REQUIRED with refLocatorKey** This represents the value to use to use with the refLocatorKey in order to find the primary key to update a given sub table (example: 'FR' if the refLocatorKey is 'CODETVA', or 'PI14092021' if the refLocatorKey is 'CODEDEVIS' etc).|
 
 This method returns a boolean that will give confirmation or denial about whether the update was successful or not.
 **Please make sure every argument passed to a method is a string, unless clearly stated as requiring a number or an object! If you need to use a variable, use a template literal**
@@ -305,25 +301,37 @@ This method returns a boolean that will give confirmation or denial about whethe
 ```javascript
 // ESM
 let updateResult = false;
+let documentToUpdate = '';
 
 try {
-  updateResult = await idylis.updateDocument(
+  documentToUpdate = await idylis.findDocument(
     'FA_DEVIS',
     'CODEDEVIS',
     '=',
-    'PU0001',
+    'PI21032021',
     'CODEDEVIS',
     'ASC',
     1,
     0,
     0,
+  );
+} catch (error) {
+  console.error(error);
+};
+
+try {
+  updateResult = await idylis.updateDocument(
+    'FA_DEVIS',
+    'CODEDEVIS',
     'REFDEVIS',
     [
       {'ADRESSE1': '42, Universe Street'},
       {'NOMCONTACT': 'Doe'},
       {'PRENOMCONTACT': 'John'}
     ],
-    // '<value for sub table primary key to update>'  /* This last parameter is optional and should only be used if you need to update a sub table */
+    documentToUpdate,
+    // '<refLocatorKey to locate the primary key>'  /* This last parameter is optional and should only be used if you need to update a sub table */
+    // '<value associated to the refLocatorKey>'  /* This last parameter is required if refLocatorKey has been given a value to update a sub table */
   );
 } catch (error) {
   console.error(error.message);
@@ -337,24 +345,41 @@ if (updateResult) {
 
 // CJS
 let updateResult = false;
+let documentToUpdate = '';
 
-idylis.updateDocument(
+let documentToUpdate = '';
+
+idylis.findDocument(
     'FA_DEVIS',
     'CODEDEVIS',
     '=',
-    'PU0001',
+    'PI21032021',
     'CODEDEVIS',
     'ASC',
     1,
     0,
     0,
+  )
+  .then((document) => {
+    documentToUpdate = document;
+  })
+  .catch((error) => {
+    console.error(error);
+  });
+
+
+idylis.updateDocument(
+    'FA_DEVIS',
+    'CODEDEVIS',
     'REFDEVIS',
     [
       {'ADRESSE1': '42, Universe Street'},
       {'NOMCONTACT': 'Doe'},
       {'PRENOMCONTACT': 'John'}
     ],
-    // '<value for sub table primary key to update>'  /* This last parameter is optional and should only be used if you need to update a sub table */
+    documentToUpdate,
+    // '<refLocatorKey to locate the primary key>'  /* This last parameter is optional and should only be used if you need to update a sub table */
+    // '<value associated to the refLocatorKey>'  /* This last parameter is required if refLocatorKey has been given a value to update a sub table */
   )
   .then((updateResult) => {
     console.log('Great! The update was successful!')

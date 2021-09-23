@@ -361,7 +361,17 @@ export default class IdylisAPI {
           this
               .invalidateSoapClient()
               .invalidateApiToken();
-          return await this.findDocument(docType, searchCriteria, operator, criteriaValue, orderingType, orderingValue, subTable, enclosedDoc, withCompression);
+          return await this.findDocument(
+              docType,
+              searchCriteria,
+              operator,
+              criteriaValue,
+              orderingType,
+              orderingValue,
+              subTable,
+              enclosedDoc,
+              withCompression,
+          );
         }
         if (LireTableResult.LireTableResult.includes('<FICHE />')) {
           this.invalidateSoapClient();
@@ -381,34 +391,24 @@ export default class IdylisAPI {
    * @param {string} docType this is the type of document that will be retrieved
    * from Idylis API (e.g..: 'FA_DEVIS', 'FA_BL', etc).
    * @param {string} searchCriteria this is the criteria that will be used to
-   * retrieve one or more document(s) from Idylis API
-   * (e.g.: 'DATECREATION', 'CODEDEVIS', etc).
-   * @param {string} operator this represents the assignment operator used for the
-   * search (e.g.: '=', '>=', etc)
-   * @param {string} criteriaValue this is the value that will be used along with
-   * the search criteria (e.g.: 'PI2105033', '03/12/2020', etc.
+   * retrieve one or more document(s) from Idylis API. Has to be a CODE value.
+   * (e.g.: 'CODEBL', 'CODEDEVIS', etc).
    * Please note that date format must be dd/MM/yyyy).
-   * @param {string} orderingType this is the criteria with which the documents will
-   * be ordered in the response (e.g.: 'DATECREATION', 'CODEDEVIS', etc).
-   * @param {string} orderingValue this is the value that will be used along with the
-   * ordering type (possible choices: 'ASC', 'DESC').
-   * @param {number} subTable this number allows to choose whether subtables will be
-   * present in the response or not (possible choices: 0, 1).
-   * @param {number} enclosedDoc this number allows to choose whether enclosed
-   * documents will be present in the response or not (possible choices: 0, 1).
-   * @param {number} withCompression this number allows to choose whether the
-   * response will be compressed or not (possible choices: 0, 1).
    * @param {string} primaryKey this represents the primary key necessary to update
-   * any table. Generally starts with 'REF' (e.g.: 'REFBL', 'REFDEVIS').
+   * any table. Always starts with 'REF' (e.g.: 'REFBL', 'REFDEVIS').
    * @param {IdylisTableField[]} tableUpdateArray this represents an array containing
    * objects of pair key value representing the table to be updated as the key and
    * the value to update as the value (e.g.: [{'ADRESSE1': 'My new address'},
    * {'NOMCONTACT': 'John Doe'}]).
+   * @param {string} documentToUpdateXml this should be a string representing the document
+   * to update that was returned by the findDocument() method.
    * @param {string} refLocatorKey [OPTIONAL] this represents the key to use to find
-   * the primary key to target the table to update a given sub table.
+   * the primary key to target the table to update a given sub table. Always starts with CODE
+   * (e.g.: 'CODEDEVIS', 'CODEBL', 'CODEARTICLE' etc).
    * @param {string} refLocatorValue [OPTIONAL but REQUIRED with refLocatorKey] this
    * represents the value to use to use with the refLocatorKey in order to find the
-   * primary key to update a given sub table (e.g.: 'FR' if the refLocatorKey is 'CODETVA');
+   * primary key to update a given sub table (e.g.: 'FR' if the refLocatorKey is 'CODETVA',
+   * or 'PI14092021' if the refLocatorKey is 'CODEDEVIS' etc).
    * @return {Promise<boolean | OriginJsonDocument>} this method returns either a
    * boolean indicating whether the update was successful or not, or the original
    * document if the update was not successful because of an incorrect key/pair inside
@@ -417,48 +417,31 @@ export default class IdylisAPI {
   public async updateDocument(
       docType: string,
       searchCriteria: string,
-      operator: string,
-      criteriaValue: string,
-      orderingType: string,
-      orderingValue: string,
-      subTable: number,
-      enclosedDoc: number,
-      withCompression: number,
       primaryKey: string,
       tableUpdateArray: IdylisTableField[],
+      documentToUpdateXml: string,
       refLocatorKey?: string,
       refLocatorValue?: string,
   ): Promise<boolean | JsonDocumentFicheToUpdate> {
-    let originXmlDocument: string | boolean = '';
+    const operator: string = '=';
+    const orderingType: string = searchCriteria;
+    const orderingValue: string = 'ASC';
+    const subTable: number = 1;
+    const enclosedDoc: number = 0;
+    const withCompression: number = 0;
     let majTableXml: string = '';
     let majTableJson: MajTableJson = {};
     let updatedXmlDocument: string | boolean = '';
     let updateConfirmation: boolean = false;
+    let criteriaValue: string = '';
 
-    try {
-      originXmlDocument = await this.findDocument(
-          docType,
-          searchCriteria,
-          operator,
-          criteriaValue,
-          orderingType,
-          orderingValue,
-          subTable,
-          enclosedDoc,
-          withCompression,
-      );
-    } catch (error) {
-      /* istanbul ignore next */
-      throw new Error(String(error));
-    };
-
-    /* istanbul ignore next */ if (!typeguards.isString(originXmlDocument)) {
+    /* istanbul ignore next */ if (!typeguards.isString(documentToUpdateXml)) {
       return false;
     }
 
-    if (Parser.validate(originXmlDocument) && '' !== originXmlDocument) {
-      const originJsonDocument: OriginJsonDocument = Parser.parse(originXmlDocument, options);
-      let jsonDocumentFicheToUpdate: JsonDocumentFicheToUpdate | JsonDocumentFicheToUpdate[] = originJsonDocument[docType]?.FICHE;
+    if (Parser.validate(documentToUpdateXml) && '' !== documentToUpdateXml) {
+      const documentToUpdateJson: OriginJsonDocument = Parser.parse(documentToUpdateXml, options);
+      let jsonDocumentFicheToUpdate: JsonDocumentFicheToUpdate | JsonDocumentFicheToUpdate[] = documentToUpdateJson[docType]?.FICHE;
 
       if (Array.isArray(jsonDocumentFicheToUpdate)) {
         if (
@@ -478,6 +461,7 @@ export default class IdylisAPI {
 
       if (typeguards.isJsonDocumentFiche(jsonDocumentFicheToUpdate)) {
         const primaryKeyValue: string = jsonDocumentFicheToUpdate[primaryKey]?.__cdata;
+        criteriaValue = jsonDocumentFicheToUpdate[searchCriteria]?.__cdata;
 
         if (typeguards.isPrimaryKeyValue(primaryKeyValue)) {
           majTableJson = {
@@ -535,15 +519,9 @@ export default class IdylisAPI {
                 return await this.updateDocument(
                     docType,
                     searchCriteria,
-                    operator,
-                    criteriaValue,
-                    orderingType,
-                    orderingValue,
-                    subTable,
-                    enclosedDoc,
-                    withCompression,
                     primaryKey,
                     tableUpdateArray,
+                    documentToUpdateXml,
                     refLocatorKey,
                     refLocatorValue,
                 );
@@ -645,7 +623,7 @@ export default class IdylisAPI {
       };
     } else {
       /* istanbul ignore next */
-      console.error(`The original XML document is either empty or invalid. Original document: ${originXmlDocument}.`);
+      console.error(`The original XML document is either empty or invalid. Original document: ${documentToUpdateXml}.`);
     };
     return updateConfirmation;
   };
